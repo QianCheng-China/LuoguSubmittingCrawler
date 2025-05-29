@@ -1,0 +1,2 @@
+# LuoguSubmittingCrawler
+Luogu Submitting Crawler可以自动搜索你在Luogu(luogu.com.cn)上Accepted的题目，提取最优的代码并以合适的文件类型保存至本地
