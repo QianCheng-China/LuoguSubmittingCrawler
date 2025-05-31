@@ -20,6 +20,8 @@ Luogu Submitting Crawler需要一些Cookie来爬取提交记录。这些Cookie�
 Luogu Submitting Crawler无需安装。请在解压后将整个文件夹移入本地磁盘，并在桌面创建可执行文件的快捷方式后即可使用。
 
 **注意：不要更改解压后文件夹内的任何内容，否则可能导致Luogu Submitting Crawler以意想不到的方式运行。**
+
+**在解压时，请选择“解压到 Luogu Submitting Crawler x.x.x”。这样不会导致零散文件出现。**
 ## 许可证
 Luogu Submitting Crawler是开源自由软件，遵循GPLv3许可证。
 
