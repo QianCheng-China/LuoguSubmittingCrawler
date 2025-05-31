@@ -12,7 +12,7 @@ Luogu Submitting Crawler需要一些Cookie来爬取提交记录。这些Cookie�
 
 请不要将这些Cookie分享给他人。Luogu Submitting Crawler也不会将这些数据上传至网络。只会在本地保存，这样你便无需每次启动软件时键入一次Cookie。
 
-*提示：目前，Coooie在本地以明文方式存储。我们将在之后的版本中引入加密机制加密Cookie。*
+*提示：目前，Cookie在本地以明文方式存储。我们将在之后的版本中引入加密机制加密Cookie。*
 
 ## 语言识别
 目前，Luogu Submitting Crawler可以识别Pascal，C，C++，Python四种主流编程语言，并分别保存为.pas,.c,.cpp,.py。对于其他语言，将以.txt形式保存。我们将不断增加可以识别的语言的种类。
