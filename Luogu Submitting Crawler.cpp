@@ -17,7 +17,7 @@ void cloOut(){fclose(stdout);freopen("CON","w",stdout);dup2(oldstdout,STDOUT);}
 void cloIn(){fclose(stdin);freopen("CON","r",stdin);dup2(oldstdin,STDIN);}
 
 int choose;
-const string version="1.1.0",date="June 7th 2025";
+const string version="1.1.1",date="June 15th 2025";
 
 char cmptUser[MAX_SYSINFO],cmptName[MAX_SYSINFO],GID[MAX_SYSINFO],UID[MAX_SYSINFO];
 string localID,localName;
@@ -123,7 +123,7 @@ void getCodeFinal(){
 	freopen("tmp.txt","w",stdout);
 	printf("%d",firRid);
 	cloOut();
-	sprintf(option,"move /Y tmp.txt \"history\\%s\\latestRid.txt\" > nul 2>nul",_uid);system(option);
+	sprintf(option,"move /Y tmp.txt \"history\\%s\\latestRid.txt\" > nul ",_uid);system(option);
 	topbar("代码爬取");
 	printf("代码爬取已完成.\n");
 	printf("下一次,增量更新将可以使用.\n");
@@ -175,7 +175,7 @@ bool getCode(){
 		if(choose==2){
 			topbar("代码爬取");
 			printf("请稍后...");
-			sprintf(option,"dir \"history\\%s\\latestRid.txt\" > nul 2>nul",_uid);
+			sprintf(option,"dir \"history\\%s\\latestRid.txt\" > nul ",_uid);
 			
 			if(system(option)){
 				topbar("代码爬取");
@@ -187,7 +187,7 @@ bool getCode(){
 				choose=_getch()-'0';
 				if(choose!=1)return 1;
 			}else{
-				sprintf(option,"copy /Y \"history\\%s\\latestRid.txt\" tmp.txt > nul 2>nul",_uid);optionRet=system(option);
+				sprintf(option,"copy /Y \"history\\%s\\latestRid.txt\" tmp.txt > nul ",_uid);optionRet=system(option);
 				freopen("tmp.txt","r",stdin);
 				scanf("%d",&lstRid);
 				cloIn();system("del tmp.txt");
@@ -209,11 +209,11 @@ bool getCode(){
 	int pos,tim,mem,diff,len,subtim,lang,rid,status;
 	
 	printf("代码爬取开始\n");
-	if(!lstRid)sprintf(option,"rd /S /Q \"code\\%s\" > nul 2>nul",_uid);system(option);
-	sprintf(option,"md \"code\\%s\" > nul 2>nul",_uid);system(option);
+	if(!lstRid)sprintf(option,"rd /S /Q \"code\\%s\" > nul ",_uid);system(option);
+	sprintf(option,"md \"code\\%s\" > nul ",_uid);system(option);
 	
-	if(!lstRid)sprintf(option,"rd /S /Q \"history\\%s\" > nul 2>nul",_uid);system(option); 
-	sprintf(option,"md \"history\\%s\" > nul 2>nul",_uid);system(option);
+	if(!lstRid)sprintf(option,"rd /S /Q \"history\\%s\" > nul ",_uid);system(option); 
+	sprintf(option,"md \"history\\%s\" > nul ",_uid);system(option);
 	
 	for(int page=1;exist;page++){
 		printf("正在爬取提交记录的第%d页\n",page); 
@@ -231,7 +231,7 @@ bool getCode(){
 		}
 		freopen("tmp.txt","r",stdin);exist=0;pos=0;
 		for(int i=1;i<=13;i++)html="\0",getline(cin,html);
-		cloIn();system("del tmp.txt > nul 2>nul");
+		cloIn();system("del tmp.txt > nul ");
 		while(html[++pos]){
 			if(_kbhit()) {
 				choose=_getch();
@@ -275,21 +275,21 @@ bool getCode(){
 			if(!firRid)firRid=rid;
 			if(rid<=lstRid){return 0;}
 			printf("运行号:%d 题号:%s 时间:%d 内存:%d 难度:%d 代码长度:%d 提交时间:%d 语言:%d 状态:%d\n",rid,pidS.c_str(),tim,mem,diff,len,subtim,lang,status);
-			save=1;
+			save=0;
 			
-			sprintf(option,"copy /Y \"history\\%s\\%s.txt\" tmp.txt > nul 2>nul",_uid,pidS.c_str());optionRet=system(option);
+			sprintf(option,"copy /Y \"history\\%s\\%s.txt\" tmp.txt > nul ",_uid,pidS.c_str());optionRet=system(option);
 			
 			if(!optionRet){
 				freopen("tmp.txt","r",stdin);
 				probNameS="\0";getline(cin,probNameS);
 				codeNameS="\0";getline(cin,codeNameS);
-				for(int i=0,val;i<=3&&save;i++){
+				for(int i=0,val;i<=3;i++){
 					scanf("%d",&val);
-					if(order[i]==1)save=(val>=tim);
-					else if(order[i]==2)save=(val>=mem);
-					else if(order[i]==3)save=(val>=len);
-					else if(order[i]==4)save=(val<subtim);
-					else save=(val>subtim);
+					if(order[i]==1)save|=(val>=tim);
+					else if(order[i]==2)save|=(val>=mem);
+					else if(order[i]==3)save|=(val>=len);
+					else if(order[i]==4)save|=(val<subtim);
+					else save|=(val>subtim);
 				}
 				cloIn();
 			}else probNameS=getProbName(pidS);
@@ -299,11 +299,11 @@ bool getCode(){
 					freopen("tmp.txt","w",stdout);
 					printf("%s\n-\n0 0 0 0 0",probNameS.c_str());
 					cloOut();
-					sprintf(option,"move /Y \"tmp.txt\" \"history\\%s\\%s.txt\" > nul 2>nul",_uid,pidS.c_str());system(option);
+					sprintf(option,"move /Y \"tmp.txt\" \"history\\%s\\%s.txt\" > nul ",_uid,pidS.c_str());system(option);
 				}
 				printf("该提交记录的代码保存已跳过\n");
 			}else{
-				if((!optionRet)&&codeNameS[0]=='-'){sprintf(option,"del \"code\\%s\\%s\" > nul 2>nul",_uid,codeNameS.c_str());system(option);}
+				if((!optionRet)&&codeNameS[0]=='-'){sprintf(option,"del \"code\\%s\\%s\" > nul ",_uid,codeNameS.c_str());system(option);}
 				
 				codeNameS="\0";codeNameS+=pidS;
 				if(fileName[0])codeNameS+=" ",codeNameS+=probNameS;
@@ -333,7 +333,7 @@ bool getCode(){
 				const string fSign="sourceCode%22%3A%22",bSign="%22%2C%22time%22%3A";
 				freopen("tmp.txt","r",stdin);
 				for(int i=1;i<=13;i++)code="\0",getline(cin,code);
-				cloIn();system("del tmp.txt > nul 2>nul");
+				cloIn();system("del tmp.txt > nul ");
 				bk=code.length()-18;
 				while(++fn){
 					matched=1;
@@ -361,14 +361,14 @@ bool getCode(){
 					}else putchar(code[i]);
 				}
 				cloOut();
-				sprintf(option,"move /Y \"tmp.txt\" \"code\\%s\\%s\" > nul 2>nul",_uid,codeNameS.c_str());system(option);
+				sprintf(option,"move /Y \"tmp.txt\" \"code\\%s\\%s\" > nul ",_uid,codeNameS.c_str());system(option);
 		
 				//saveResult
 				freopen("tmp.txt","w",stdout);
 				printf("%s\n%s\n%d %d %d %d %d\n",probNameS.c_str(),codeNameS.c_str(),tim,mem,len,subtim,rid);
 				printf("%d %d %d",fileName[0],fileName[1],fileName[2]);
 				cloOut();
-				sprintf(option,"move /Y \"tmp.txt\" \"history\\%s\\%s.txt\" > nul 2>nul",_uid,pidS.c_str());system(option);
+				sprintf(option,"move /Y \"tmp.txt\" \"history\\%s\\%s.txt\" > nul ",_uid,pidS.c_str());system(option);
 		
 			}
 		}
@@ -385,7 +385,7 @@ bool checkCookie(){
 			
 	freopen("tmp.txt","r",stdin);
 	for(int i=1;i<=23;i++)html="\0",getline(cin,html);
-	cloIn();system("del tmp.txt > nul 2>nul");
+	cloIn();system("del tmp.txt > nul ");
 			
 	const string fSign="%22name%22%3A%22",bSign="%22%2C%22avatar%22%";
 	bk=(len=html.length())-18;
@@ -404,12 +404,27 @@ bool checkCookie(){
 	for(int i=fn;i<=bk;i++)userName+=html[i];
 	return 1;
 }
+int keyMaker(){
+	string GIDS=GID,UIDS=UID;
+	int charSum=0;
+	for(int i=0;i<GIDS.length();i++){
+		if(GID[i]=='-')continue;
+		charSum=(int)(GIDS[i]+UIDS[i]);
+	}
+	return charSum;
+}
 void findCookie(){ 	
+	int key=keyMaker(),pos=-1,tmp;
 	freopen("cookie.txt","r",stdin);
-	scanf("%s",_uid);scanf("%s",__client_id);
+	scanf("%s",_uid);
+	while(true){
+		tmp=0;scanf("%d",&tmp);
+		if(!tmp)break;
+		__client_id[++pos]=(char)(tmp xor key);
+	}
 	cloIn();
 	if(checkCookie())localSave=1,loginAble=1;
-	else system("del cookie.txt > nul 2>nul");
+	else system("del cookie.txt > nul ");
 }
 void manageCookie(){
 	while(true){
@@ -433,7 +448,7 @@ void manageCookie(){
 			printf("Cookie本地保存状态已重置.\n");
 			line();
 			memset(_uid,0,sizeof _uid);memset(__client_id,0,sizeof __client_id);
-			loginAble=0;localSave=0;system("del cookie.txt > nul 2>nul");
+			loginAble=0;localSave=0;system("del cookie.txt > nul ");
 			printf("_uid=");scanf("%s",_uid);
 			printf("__client_id=");scanf("%s",__client_id);
 			topbar("Cookie管理");
@@ -466,7 +481,7 @@ void manageCookie(){
 				 printf("按键 其他:取消操作\n");
 				 choose=_getch()-'0';
 				 if(choose==1){
-			    	 system("del cookie.txt > nul 2>nul");
+			    	 system("del cookie.txt > nul ");
 			    	 localSave=0;
 				 }
 			}else{
@@ -487,7 +502,10 @@ void manageCookie(){
 				 choose=_getch()-'0';
 				 if(choose==1){
 			    	 freopen("cookie.txt","w",stdout);
-					 printf("%s\n%s",_uid,__client_id); 
+					 printf("%s\n",_uid); 
+					 int key=keyMaker();
+					 for(int i=0;i<strlen(__client_id);i++)printf("%d ",(int)((int)(__client_id[i]) xor key));
+					 printf("0");
 					 cloOut();
 			    	 localSave=1;
 				 }			 
@@ -633,7 +651,7 @@ void extract(){
 			memset(tarUrl,0,sizeof tarUrl);
 			printf("请键入你的_uid:");scanf("%s",tarUrl);
 			
-			sprintf(option,"dir \"code\\%s\" > nul 2>nul",tarUrl);
+			sprintf(option,"dir \"code\\%s\" > nul ",tarUrl);
 			topbar("提取/管理代码");
 			printf("请稍后...\n");
 			if(system(option)){
@@ -648,10 +666,10 @@ void extract(){
 				printf("你可以键入绝对路径,或将目标文件夹拖放到该窗口.\n");
 				printf("代码将被归档为LuoguCode.zip进行保存,如有重名文件则将自动覆盖.\n");
 				line();
-				sprintf(option,"tar -cf LuoguCode.zip \"code\\%s\" > nul 2>nul",tarUrl);system(option);
+				sprintf(option,"tar -cf LuoguCode.zip \"code\\%s\" > nul ",tarUrl);system(option);
 				memset(tarUrl,0,sizeof tarUrl);
 				printf("目标文件夹绝对路径:");scanf("%s",tarUrl);
-				sprintf(option,"move /Y LuoguCode.zip %s\\LuoguCode.zip > nul 2>nul",tarUrl);system(option);
+				sprintf(option,"move /Y LuoguCode.zip %s\\LuoguCode.zip > nul ",tarUrl);system(option);
 				topbar("提取/管理代码");
 				printf("操作已完成.\n");
 				line();
@@ -668,8 +686,8 @@ void extract(){
 			printf("按键 2:返回\n");
 			choose=_getch()-'0';
 			if(choose==1){
-				system("rd /S /Q code > nul 2>nul");
-				system("rd /S /Q history > nul 2>nul");
+				system("rd /S /Q code > nul ");
+				system("rd /S /Q history > nul ");
 				topbar("提取/管理代码");
 				printf("操作已完成.\n");
 				line();
@@ -702,7 +720,7 @@ void extract(){
 				printf("按键 所有:返回\n");
 				_getch(); 
 			}else{
-				sprintf(option,"copy /Y \"history\\%s\\%s.txt\" tmp.txt > nul 2>nul",_uid,pid.c_str());optionRet=system(option);
+				sprintf(option,"copy /Y \"history\\%s\\%s.txt\" tmp.txt > nul ",_uid,pid.c_str());optionRet=system(option);
 				if(optionRet){
 					freopen("tmp.txt","w",stdout);
 					printf("%s/n-/n0 0 0 0 0",probName.c_str());
@@ -736,8 +754,8 @@ void extract(){
 							if(i==4)printf("\n");
 						}
 						cloOut();
-						sprintf(option,"move /Y \"tmp.txt\" \"history\\%s\\%s.txt\" > nul 2>nul",_uid,pid.c_str());system(option);
-						sprintf(option,"ren \"code\\%s\\%s\" \"%s\" > nul 2>nul",_uid,codeNameS.c_str(),codeNameN.c_str());system(option);
+						sprintf(option,"move /Y \"tmp.txt\" \"history\\%s\\%s.txt\" > nul ",_uid,pid.c_str());system(option);
+						sprintf(option,"ren \"code\\%s\\%s\" \"%s\" > nul ",_uid,codeNameS.c_str(),codeNameN.c_str());system(option);
 						
 					}
 				}
@@ -783,7 +801,7 @@ void extract(){
 			string pidS,probName,codeNameS,codeNameN,exName;
 			vector<string> pidL;
 			vector<string>().swap(pidL);
-			sprintf(option,"dir /b \"history\\%s\" > tmp.txt 2>nul",_uid);system(option);
+			sprintf(option,"dir /b \"history\\%s\" > tmp.txt ",_uid);system(option);
 			system("echo END >> tmp.txt");
 			freopen("tmp.txt","r",stdin);
 			while(1){
@@ -800,7 +818,7 @@ void extract(){
 			cloIn(); 
 			num=pidL.size();
 			for(int ord=0;ord<num;ord++){
-				sprintf(option,"copy /Y \"history\\%s\\%s.txt\" tmp.txt > nul 2>nul",_uid,pidL[ord].c_str());
+				sprintf(option,"copy /Y \"history\\%s\\%s.txt\" tmp.txt > nul ",_uid,pidL[ord].c_str());
 				system(option);
 				
 				string probName="",codeNameO="",codeNameN="",exName="";
@@ -837,7 +855,7 @@ void extract(){
 				printf("\n");
 				for(int i=0;i<3;i++)printf("%d ",fileName[i]);
 				cloOut();
-				sprintf(option,"move /Y \"tmp.txt\" \"history\\%s\\%s.txt\" > nul 2>nul",_uid,pidL[ord].c_str());system(option);
+				sprintf(option,"move /Y \"tmp.txt\" \"history\\%s\\%s.txt\" > nul ",_uid,pidL[ord].c_str());system(option);
 			}
 			topbar("提取/管理代码");
 			printf("重命名已完成.\n");
@@ -882,9 +900,9 @@ void homepage(){
 } 
 void init(){	
 	sprintf(option,"title Luogu Submitting Crawler %s",version.c_str());system(option);
-	system("chcp 936 > nul 2>nul");SetConsoleOutputCP(936);
+	freopen("errlog.txt","w",stderr);
+	system("chcp 936 > nul ");SetConsoleOutputCP(936);
 	printf("Luogu Submitting Crawler 正在启动\n");line();
-	printf("正在读取和验证保存在计算机上的Cookie...\n");findCookie();
 	printf("正在读取必要数据...\n");
 	
 	DWORD MAX_LEN=MAX_SYSINFO+1;
@@ -903,9 +921,9 @@ void init(){
     freopen("tmp.txt","r",stdin);cin>>UID;
     for(int i=1;i<=4;i++)getline(cin,localID);
 	cin>>localID>>localName;
-	cloIn();system("del tmp.txt > nul 2>nul");
+	cloIn();system("del tmp.txt > nul ");
 	findSetting();
-   	
+	printf("正在读取和验证保存在计算机上的Cookie...\n");findCookie();
 }
 int main(){
 	init();
