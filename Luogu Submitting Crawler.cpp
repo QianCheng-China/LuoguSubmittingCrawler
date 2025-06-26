@@ -4,6 +4,9 @@
 #include<io.h>
 #include<string>
 #include<fstream> 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #define MAX_COOKIE 100
 #define MAX_SYSINFO 100
@@ -17,7 +20,7 @@ void cloOut(){fclose(stdout);freopen("CON","w",stdout);dup2(oldstdout,STDOUT);}
 void cloIn(){fclose(stdin);freopen("CON","r",stdin);dup2(oldstdin,STDIN);}
 
 int choose;
-const string version="1.1.1",date="June 15th 2025";
+const string version="1.1.2",date="June 26th 2025";
 
 char cmptUser[MAX_SYSINFO],cmptName[MAX_SYSINFO],GID[MAX_SYSINFO],UID[MAX_SYSINFO];
 string localID,localName;
@@ -66,6 +69,11 @@ string langID(int x){
 	if(x==28||x==3||x==4||x==11||x==17||x==27)return ".cpp";
 	if(x==7||x==25||x==6||x==24)return ".py";
 	if(x==8||x==33)return ".java";
+	if(x==15)return ".rs";
+	if(x==14)return ".go";
+	if(x==19)return ".hs";
+	if(x==16)return ".php";
+	if(x==5)return ".ans";
 	return ".txt";
 }
 unsigned char FromHex(unsigned char x) {
@@ -285,11 +293,22 @@ bool getCode(){
 				codeNameS="\0";getline(cin,codeNameS);
 				for(int i=0,val;i<=3;i++){
 					scanf("%d",&val);
-					if(order[i]==1)save|=(val>=tim);
-					else if(order[i]==2)save|=(val>=mem);
-					else if(order[i]==3)save|=(val>=len);
-					else if(order[i]==4)save|=(val<subtim);
-					else save|=(val>subtim);
+					if(order[i]==1){
+						if(val>tim){save=1;break;}
+						else if(val<tim){save=0;break;}
+					}else if(order[i]==2){
+						if(val>mem){save=1;break;}
+						else if(val<mem){save=0;break;}
+					}else if(order[i]==3){
+						if(val>len){save=1;break;}
+						else if(val<len){save=0;break;}
+					}else if(order[i]==4){
+						if(val<subtim){save=1;break;}
+						else {save=0;break;}
+					}else{
+						if(val>subtim){save=1;break;}
+						else {save=0;break;}
+					}
 				}
 				cloIn();
 			}else probNameS=getProbName(pidS);
@@ -867,6 +886,7 @@ void extract(){
 	}
 	
 }
+
 void about(){
 	topbar("关于");
 	printf("Luogu Submitting Crawler.exe\n");
@@ -882,6 +902,61 @@ void about(){
 	choose=_getch()-'0';
 	return; 
 }
+int getFileS(const char *fileName) {
+	struct stat st;
+	if (!stat(fileName, &st))return st.st_size;
+	return 0;
+}
+void errlogView(){
+	while(true){
+		topbar("错误日志");
+		printf("已转写的错误日志长度: %d\n",getFileS("errlog.txt"));
+		printf("正在更新的错误日志长度: %d\n",getFileS("errnew.txt"));
+		line();
+		printf("按键 1:打印错误日志\n");
+		printf("按键 2:删除已转写的错误日志\n");
+		printf("按键 其他:返回\n");
+		choose=_getch()-'0';
+		if(choose==1){
+			topbar("错误日志");
+			printf("已转写的错误日志\n");line();system("type errlog.txt 2>nul");
+			printf("\n");line();printf("正在更新的错误日志\n");line();system("type errnew.txt 2>nul");
+			printf("\n");line();
+			printf("按键 所有:返回\n");
+			_getch();
+		}else if(choose==2){
+			topbar("错误日志");
+			system("del errlog.txt > nul 2>nul");
+			system("del errnew.txt > nul 2>nul");
+			printf("操作已完成.\n");
+			line();
+			printf("按键 所有:返回\n");
+			_getch(); 
+		}else break;		
+	}
+
+} 
+void revert(){
+	topbar("还原");
+	printf("还原Luogu Submitting Crawle.\n");
+	printf("这将重置你的Cookie,设置等数据.\n");
+	printf("错误日志将不受影响.\n");
+	line();
+	printf("按键 1:还原\n");
+	printf("按键 其他:退出\n"); 
+	choose=_getch()-'0';
+	if(choose==1){
+		topbar("还原");
+		system("del cookie.txt > nul 2>nul");
+		system("del setting.txt > nul 2>nul");
+		system("rd /s /q history > nul 2>nul");
+		system("rd /s /q code > nul 2>nul");
+		printf("操作已完成.\n");
+		line();
+		printf("按键 所有:返回\n"); 
+		_getch();		
+	}
+}
 void homepage(){
 	topbar(" ");
 	printf("按键 1:开始爬取Accepted代码\n");
@@ -896,13 +971,17 @@ void homepage(){
 	else if(choose==3)manageCookie();
 	else if(choose==4)setting();
 	else if(choose==5)about();
+	else if(choose==-43)errlogView();
+	else if(choose==-30)revert();
 	else exit(0);
 } 
 void init(){	
 	sprintf(option,"title Luogu Submitting Crawler %s",version.c_str());system(option);
-	freopen("errlog.txt","w",stderr);
 	system("chcp 936 > nul ");SetConsoleOutputCP(936);
 	printf("Luogu Submitting Crawler 正在启动\n");line();
+	printf("正在转写日志文件...\n");
+	system("type errnew.txt>>errlog.txt 2>nul"); 
+	freopen("errnew.txt","w",stderr);
 	printf("正在读取必要数据...\n");
 	
 	DWORD MAX_LEN=MAX_SYSINFO+1;
