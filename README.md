@@ -2,7 +2,7 @@
 ### by Journals Junction Hybrid
 截至目前，Luogu并未开放打包下载在其上Accepted的题目代码的功能，这为许多OIer带来了不便。但Luogu Submitting Crawler可以全自动提取所有Accepted的题目，找到最优代码并保存到本地。Luogu Submitting Crawler拥有基于命令行的UI。以下是一些注意事项。
 ## 最新版本
-Luogu Submitting Crawler的最新版本为1.1.1。
+Luogu Submitting Crawler的最新版本为1.1.2。
 ## 兼容性
 Luogu Submitting Crawler仅提供Windows系统，要求curl和tar功能。
 
@@ -15,7 +15,9 @@ Luogu Submitting Crawler需要一些Cookie来爬取提交记录。这些Cookie�
 **提示：从版本1.1.1开始，Cookie在本地将进行加密存储。此版本之前的版本将以明文存储。**
 
 ## 语言识别
-目前，Luogu Submitting Crawler可以识别Pascal，C，C++，Python，Java五种主流编程语言，并分别保存为.pas,.c,.cpp,.py,.java。对于其他语言，将以.txt形式保存。我们将不断增加可以识别的语言的种类。
+目前，Luogu Submitting Crawler可以识别Pascal，C，C++，Python，Java，Rust，Go，Haskell，PHP编程语言并存为相应文件扩展名。对于其他语言，将以.txt形式保存。我们将不断增加可以识别的语言的种类。
+
+提交答案将保存为.ans文件。
 ## 安装
 Luogu Submitting Crawler无需安装。请在解压后将整个文件夹移入本地磁盘，并在桌面创建可执行文件的快捷方式后即可使用。
 
