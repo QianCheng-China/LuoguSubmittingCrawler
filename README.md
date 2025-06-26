@@ -24,6 +24,10 @@ Luogu Submitting Crawler无需安装。请在解压后将整个文件夹移入�
 **注意：不要更改解压后文件夹内的任何内容，否则可能导致Luogu Submitting Crawler以意想不到的方式运行。**
 
 **在解压时，请选择“解压到 Luogu Submitting Crawler x.x.x”。这样不会导致零散文件出现。**
+
+## 错误修复程序
+从1.1.2开始，Luogu Submitting Crawler内置了错误修复程序。在首页，你可以按Ctrl+E查看错误日志，或按Ctrl+R执行还原操作。
+
 ## 许可证和条件
 Luogu Submitting Crawler是开源自由软件，遵循GPLv3许可证。
 
