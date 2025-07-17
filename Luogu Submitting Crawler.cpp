@@ -785,6 +785,7 @@ void mainMenu(){
 	else if(choice==3)manageCookie();
 	else if(choice==4)setting();
 	else if(choice==5)about();
+	else if(choice==-30)revert();
 	else exit(0);
 }
 void loadIn(){
