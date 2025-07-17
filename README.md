@@ -42,9 +42,9 @@ Luogu Submitting Crawler无需安装。请在解压后将整个文件夹移入�
 
 
 ## 许可证和条件
-Luogu Submitting Crawler是开源自由软件，遵循GPLv3许可证。
+Luogu Submitting Crawler是开源自由软件，遵循GPLv3许可证。**本软件不提供任何担保。**
 
 
-本软件属于网络爬虫范畴，请在使用时注意遵守有关规则。
+本软件属于网络爬虫范畴，请在使用时注意遵守有关规则。**使用本软件造成的一切责任与开发者无关。**
 
 尽情享用吧！
