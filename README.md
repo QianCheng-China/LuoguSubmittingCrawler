@@ -38,7 +38,7 @@ Luogu Submitting Crawler无需安装。请在解压后将整个文件夹移入�
 在2.0.0，错误日志查看功能已被弃用。
 
 ## 更新检查程序
-从2.0.0开始，Luogu Submitting Crawler内置了更新检查功能已便检查是否有新的更新。
+从2.0.0开始，Luogu Submitting Crawler内置了更新检查功能以便检查是否有新的更新。
 
 
 ## 许可证和条件
