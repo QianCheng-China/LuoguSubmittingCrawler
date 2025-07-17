@@ -2,54 +2,76 @@
 #include<windows.h>
 #include<conio.h>
 #include<io.h>
-#include<string>
-#include<fstream> 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
 
-#define MAX_COOKIE 100
-#define MAX_SYSINFO 100
+#define prt printf
+#define sprt sprintf
+#define sys system
 
-#define STDIN 0
-#define STDOUT 1
-#define STDERR 2 
+#define MAX_OPTION 2000
+#define MAX_COOKIE 150
+#define MAX_URL 100
+#define MAX_HEAD 40
+
+#define line prt("--------------\n")
+#define enter putchar('\n')
+#define space putchar(' ')
+#define chos _getch()-'0'
+
 using namespace std;
-const int oldstdout=dup(STDOUT),oldstdin=dup(STDIN),oldstderr=dup(STDERR);
-void cloOut(){fclose(stdout);freopen("CON","w",stdout);dup2(oldstdout,STDOUT);}
-void cloIn(){fclose(stdin);freopen("CON","r",stdin);dup2(oldstdin,STDIN);}
+const string _DATE="2025.7.14";
+const string _VERSION="2.0.0"; 
 
-int choose;
-const string version="1.1.2",date="June 26th 2025";
+string guid,uuid,pcName,acName,loCode,loNum,naCode,latestVer;
 
-char cmptUser[MAX_SYSINFO],cmptName[MAX_SYSINFO],GID[MAX_SYSINFO],UID[MAX_SYSINFO];
-string localID,localName;
+char option[MAX_OPTION];
+int optRes,choice;
 
+int saveOrder[5],delayTime,timeLimit;
+bool saveAll,fileName[4];
 
-//account part
-char _uid[MAX_COOKIE],__client_id[MAX_COOKIE];
-string userName;
-bool loginAble,localSave;
-
-char tarUrl[1000],option[2000];
-int timLim,optionRet;
-int delayTim;
-int firRid,lstRid;
-int order[5];
-//1=tim,2=mem,3=len,4=subtim(newer),5=subtim(older) 
-
-bool fileName[5];
-//1st=name,2nd=subTim,3rd=rid
+string _uid,__client_id,decodeKey,userName;                 
+char cookie[MAX_COOKIE],tarUrl[MAX_URL],curlHead[MAX_HEAD];
+bool loginAble,readAble;
 
 
-void line(){printf("--------------\n");}
+
 void topbar(string s){
-	system("cls");
-	printf("Luogu Submitting Crawler\n");
-	printf("Ê×Ò³");
-	if(s!=" ")printf("-"),cout<<s;
-	printf("\n");line();
+	sys("cls");prt("Luogu Submitting Crawler\n");prt("é¦–é¡µ");
+	if(s!=" ")prt("-"),cout<<s;enter;line;
 }
+
+void cookieCoder(bool decode){
+	string a=guid,b=uuid;unsigned __int128 tmp=0;
+	for(int i=0;guid[i];i++)tmp=tmp*100+(unsigned __int128)((guid[i] xor uuid[i] xor i)%100);
+	for(int i=0;tmp!=0;i++)__client_id[i]+=(int)((tmp%10)*(decode?-1:1)),tmp/=10;
+	if(decode)for(int i=0;__client_id[i];i++)if((!isdigit(__client_id[i]))&&(!isalpha(__client_id[i])))__client_id[i]='0';
+}
+bool saveSetting(){
+	ifstream fin;ofstream fout;
+	fout.open("setting.txt",ios::out);
+	if(fout.is_open()){
+		for(int i=1;i<=4;++i){fout<<saveOrder[i];i==4?fout<<endl:fout<<" ";}
+		for(int i=1;i<=3;++i){fout<<fileName[i];i==3?fout<<endl:fout<<" ";}
+		fout<<saveAll<<" "<<delayTime<<" "<<timeLimit;	
+		fout.close();return 1;
+	}else return 0;
+}
+
+bool checkCookie(){
+	sprt(tarUrl,"\"https://www.luogu.com.cn/\"");
+	sprt(option,"%s -s %s %s > tmp.txt",curlHead,tarUrl,cookie);sys(option);
+	int fn=0,bk=0,len;string html;bool matched=0;
+	const string fSign="%22name%22%3A%22",bSign="%22%2C%22avatar%22%";
+	ifstream fin;ofstream fout;
+	fin.open("tmp.txt",ios::in);for(int i=1;i<=23;i++)html="",getline(fin,html);fin.close();
+	bk=(len=html.length())-18;
+	while(++fn<len-15){matched=1;for(int i=0;i<=15&&matched;i++)if(html[fn+i]!=fSign[i])matched=0;if(matched){fn+=16;break;}}
+	if(!matched)return 0;
+	while(--bk){matched=1;for(int i=0;i<=18&&matched;i++)if(html[bk+i]!=bSign[i])matched=0;if(matched){bk-=1;break;}}
+	userName="";for(int i=fn;i<=bk;i++)userName+=html[i];
+	return 1;
+}
+
 string timCov(time_t timeStamp){
     struct tm *timeinfo=NULL;char buffer[80];
     timeinfo=localtime(&timeStamp);
@@ -111,164 +133,147 @@ string utfCov(const char* str) {
 	delete[] szRes;
 	return result;
 }
-string getProbName(string pidS) {
-	string probName;
-	sprintf(tarUrl,"\"https://www.luogu.com.cn/problem/%s\"",pidS.c_str());
-	sprintf(option,"curl --connect-timeout %d -s %s --cookie \"_uid=%s;__client_id=%s\" > tmp.txt",timLim,tarUrl,_uid,__client_id);
+string getProbName(string pidS,string cidS) {
+	string probName="";
+	if(cidS.empty())sprt(tarUrl,"\"https://www.luogu.com.cn/problem/%s\"",pidS.c_str());
+	else sprt(tarUrl,"\"https://www.luogu.com.cn/problem/%s?contestId=%s\"",pidS.c_str(),cidS.c_str());
+	sprt(option,"%s -s %s %s > tmp.txt",curlHead,tarUrl,cookie);sys(option);
 	if(system(option))return "";
-	freopen("tmp.txt","r",stdin);
-	for(int i=1; i<=13; i++)getline(cin,probName);
-	cin>>probName;probName="\0";getchar();
-	getline(cin,probName);cloIn();
+	ifstream fin;ofstream fout;
+	fin.open("tmp.txt",ios::in);
+	for(int i=1;i<=13;i++)getline(fin,probName);
+	fin>>probName;probName="";fin.get();
+	getline(fin,probName);fin.close();
 	for(int i=probName.length()-1;;i--) {
+		if(i==0){return "Illegal_File_Name";}
 		if(probName[i]=='-'){probName[i-1]=probName[i]='\0';break;}
 		probName[i]='\0';
 	}
+	for(int i=0;i<probName.length();i++){
+		char ch=probName[i];
+		if(ch=='\\'||ch=='/'||ch==':'||ch=='<'||ch=='>'||ch=='*'||ch=='|'||ch=='\"')return "Illegal_File_Name"; 
+	}
 	return utfCov(probName.c_str());
 }
-void getCodeFinal(){
-	cloIn(); 
-	freopen("tmp.txt","w",stdout);
-	printf("%d",firRid);
-	cloOut();
-	sprintf(option,"move /Y tmp.txt \"history\\%s\\latestRid.txt\" > nul ",_uid);system(option);
-	topbar("´úÂëÅÀÈ¡");
-	printf("´úÂëÅÀÈ¡ÒÑÍê³É.\n");
-	printf("ÏÂÒ»´Î,ÔöÁ¿¸üĞÂ½«¿ÉÒÔÊ¹ÓÃ.\n");
-	line();
-	printf("°´¼ü ËùÓĞ:·µ»Ø\n");
-	_getch();
-	return;
-}
-bool getCode(){
-	 firRid=0;lstRid=0;
-	if(!loginAble){
-		topbar("Cookie¹ÜÀí"); 
-		printf("Ã»ÓĞ¿ÉÓÃµÄµÇÂ¼Cookie.\n");
-		printf("ÇëÏÈ¼üÈëÒ»¸ö¿ÉÓÃµÄCookie,È»ºó³ÌĞò²ÅÄÜÅÀÈ¡´úÂë.\n");
-		line();
-		printf("°´¼ü ËùÓĞ:·µ»Ø\n");
-		_getch();
-		return 1;
-	}else{
-		topbar("´úÂëÅÀÈ¡");
-		printf("³ÌĞò¼´½«¿ªÊ¼ÅÀÈ¡´úÂë,²¢»ùÓÚÉè¶¨µÄ¹æÔò½øĞĞ±£´æ.\n");
-		printf("ÇëÔÚÅÀÈ¡¹ı³ÌÖĞ±£³ÖÍøÂçÁ¬½Ó.\n");
-		printf("ÈôÄãÏëÒªÍ£Ö¹ÅÀÈ¡,Çë°´esc¼ü.\n");
-		line();
-		printf("ÅÀÈ¡´úÂëÊ±,°´ÒÔÏÂË³ĞòÅĞ¶¨ÊÇ·ñĞèÒª±£´æ´úÂë:\n");
-		for(int i=0;i<4;i++){
-			if(order[i]==1)printf("Ê±¼ä");
-			else if(order[i]==2)printf("ÄÚ´æ");
-			else if(order[i]==3)printf("´úÂë³¤¶È");
-			else if(order[i]==4)printf("Ìá½»Ê±¼ä(¸üĞÂµÄ)");
-			else printf("Ìá½»Ê±¼ä(¸ü¾ÉµÄ)"); 
-			i==3?printf("\n"):printf(" ");
-		}
-		line();
-		if(!(fileName[0]||fileName[1]))printf("Ã¿·İ´úÂëµÄÎÄ¼şÃû½öÎªÆäËù¶ÔÓ¦µÄÌâºÅ\n");
-		else{
-			printf("³ıÌâºÅÍâ,ÒÔÏÂĞÅÏ¢Ò²»á×÷Îª´úÂëÎÄ¼şÃûµÄÒ»²¿·Ö²¢°´ĞòÏÔÊ¾:\n");
-			if(fileName[0])printf("ÌâÄ¿Ãû³Æ ");
-			if(fileName[1])printf("Ìá½»Ê±¼ä "); 
-			if(fileName[2])printf("ÔËĞĞºÅ");
-			printf("\n"); 
-		}
-		line();
-		printf("°´¼ü 1:¿ªÊ¼Ò»°ãÅÀÈ¡\n");
-		printf("°´¼ü 2:¿ªÊ¼ÔöÁ¿ÅÀÈ¡\n");
-		printf("°´¼ü ÆäËû:·µ»Ø\n");
-		choose=_getch()-'0';
-		if(choose!=1&&choose!=2)return 1;
-		if(choose==2){
-			topbar("´úÂëÅÀÈ¡");
-			printf("ÇëÉÔºó...");
-			sprintf(option,"dir \"history\\%s\\latestRid.txt\" > nul ",_uid);
-			
-			if(system(option)){
-				topbar("´úÂëÅÀÈ¡");
-				printf("ÔöÁ¿ÅÀÈ¡µ±Ç°²»¿ÉÓÃ.\n");
-				printf("Äã¿ÉÒÔÇĞ»»µ½Ò»°ãÅÀÈ¡,Ò²¿ÉÒÔÍË³ö.\n");
-				line();
-				printf("°´¼ü 1:ÇĞ»»µ½Ò»°ãÅÀÈ¡.\n");
-				printf("°´¼ü ÆäËû:ÍË³ö\n");
-				choose=_getch()-'0';
-				if(choose!=1)return 1;
-			}else{
-				sprintf(option,"copy /Y \"history\\%s\\latestRid.txt\" tmp.txt > nul ",_uid);optionRet=system(option);
-				freopen("tmp.txt","r",stdin);
-				scanf("%d",&lstRid);
-				cloIn();system("del tmp.txt");
-				topbar("´úÂëÅÀÈ¡");
-				printf("ÔöÁ¿ÅÀÈ¡Ä¿Ç°¿ÉÓÃ.\n");
-				printf("ÔËĞĞºÅÏÂÏŞÎª:%d\n",lstRid);
-				line();
-				printf("°´¼ü ËùÓĞ:¿ªÊ¼ÅÀÈ¡\n");
-				_getch();
-			}
-			 
-		}
-	}
-	system("cls");
-	
-	const string sign[9]={"%22time%22%3A","memory%22%3A","pid%22%3A%22","difficulty%22%3A","sourceCodeLength%22%3A","submitTime%22%3A","language%22%3A","C%22id%22%3A","status%22%3A"};
-	string html,pidS,codeNameS,code,codeS,probNameS;
-	bool exist=1,matched,save;
+int crawler(){
+	int firRid=0,lstRid=0,i,j;
+	string tarPid="",html,pidS,codeName,code,codeS,probNameS,cid;
 	int pos,tim,mem,diff,len,subtim,lang,rid,status;
-	
-	printf("´úÂëÅÀÈ¡¿ªÊ¼\n");
-	if(!lstRid)sprintf(option,"rd /S /Q \"code\\%s\" > nul ",_uid);system(option);
-	sprintf(option,"md \"code\\%s\" > nul ",_uid);system(option);
-	
-	if(!lstRid)sprintf(option,"rd /S /Q \"history\\%s\" > nul ",_uid);system(option); 
-	sprintf(option,"md \"history\\%s\" > nul ",_uid);system(option);
-	
-	for(int page=1;exist;page++){
-		printf("ÕıÔÚÅÀÈ¡Ìá½»¼ÇÂ¼µÄµÚ%dÒ³\n",page); 
-		sprintf(tarUrl,"\"https://www.luogu.com.cn/record/list?user=%s&page=%d\"",_uid,page);
-		sprintf(option,"curl --connect-timeout %d -s %s --cookie \"_uid=%s;__client_id=%s\" > tmp.txt",timLim,tarUrl,_uid,__client_id);
-		optionRet=system(option);
-		if(optionRet){
-			topbar("´úÂëÅÀÈ¡");
-			printf("´úÂëÅÀÈ¡ÒòÎªÄ³Ğ©Ô­ÒòÍ£Ö¹.\n");
-			printf("¼ì²éÍøÂçÁ¬½Ó,»òÌá¸ß³¬Ê±Ê±¼ä.\n");
-			line();
-			printf("°´¼ü ËùÓĞ:·µ»Ø\n");
-			_getch();
-			return 1;
+	int bst_tim,bst_mem,bst_len,bst_subtim;
+	bool exist=1,matched,cp_matched;
+	bool isBest=0,needSave=0;
+	const string sign[9]={"%22time%22%3A","memory%22%3A","pid%22%3A%22","difficulty%22%3A",
+	"sourceCodeLength%22%3A","submitTime%22%3A","language%22%3A","C%22id%22%3A","status%22%3A"};
+	const string cp_sign="contest%22%3A%7B%22id%22%3A";
+	int fn=0,bk=0;
+	const string fSign="sourceCode%22%3A%22",bSign="%22%2C%22time%22%3A";
+	ifstream fin;ofstream fout;
+	if(!loginAble){
+		topbar("Cookieç®¡ç†"); 
+		prt("æ²¡æœ‰å¯ç”¨çš„ç™»å½•Cookie.\n");prt("è¯·å…ˆé”®å…¥ä¸€ä¸ªå¯ç”¨çš„Cookie,ç„¶åç¨‹åºæ‰èƒ½çˆ¬å–ä»£ç .\n");
+		line;prt("æŒ‰é”® æ‰€æœ‰:è¿”å›\n");chos;return 0;
+	}else{
+		topbar("ä»£ç çˆ¬å–");prt("ç¨‹åºå³å°†å¼€å§‹çˆ¬å–ä»£ç ,å¹¶åŸºäºè®¾å®šçš„è§„åˆ™è¿›è¡Œä¿å­˜.\n");
+		prt("è¯·åœ¨çˆ¬å–è¿‡ç¨‹ä¸­ä¿æŒç½‘ç»œè¿æ¥.\n");prt("è‹¥ä½ æƒ³è¦åœæ­¢çˆ¬å–,è¯·æŒ‰escé”®.\n");line;
+		if(!saveAll){
+			prt("çˆ¬å–ä»£ç æ—¶,æŒ‰ä»¥ä¸‹é¡ºåºåˆ¤å®šæ˜¯å¦éœ€è¦ä¿å­˜ä»£ç :\n");
+			for(i=1;i<=4;i++){
+				if(saveOrder[i]==1)prt("æ—¶é—´");
+				else if(saveOrder[i]==2)prt("å†…å­˜");
+				else if(saveOrder[i]==3)prt("ä»£ç é•¿åº¦");
+				else if(saveOrder[i]==4)prt("æäº¤æ—¶é—´(æ›´æ–°çš„)");
+				else prt("æäº¤æ—¶é—´(æ›´æ—§çš„)"); 
+				i==4?enter:space;
+			}
+		}else prt("Luogo Submitting Crawlerå°†ä¿å­˜æ‰€æœ‰ACä»£ç .\n");
+		line;
+		if(!((fileName[1]||fileName[2])||fileName[3]))prt("æ¯ä»½ä»£ç çš„æ–‡ä»¶åä»…ä¸ºå…¶æ‰€å¯¹åº”çš„é¢˜å·\n");
+		else{
+			prt("é™¤é¢˜å·å¤–,ä»¥ä¸‹ä¿¡æ¯ä¹Ÿä¼šä½œä¸ºä»£ç æ–‡ä»¶åçš„ä¸€éƒ¨åˆ†å¹¶æŒ‰åºæ˜¾ç¤º:\n");
+			if(fileName[1])prt("é¢˜ç›®åç§° ");if(fileName[2])prt("æäº¤æ—¶é—´ ");if(fileName[3])prt("è¿è¡Œå·");enter;
 		}
-		freopen("tmp.txt","r",stdin);exist=0;pos=0;
-		for(int i=1;i<=13;i++)html="\0",getline(cin,html);
-		cloIn();system("del tmp.txt > nul ");
-		while(html[++pos]){
-			if(_kbhit()) {
-				choose=_getch();
-				if(choose==27){
-					topbar("´úÂëÅÀÈ¡");
-					printf("´úÂëÅÀÈ¡ÒÑ±»ÔİÍ£.\n");
-					printf("Èç¹û´ËÊ±ÍË³ö,ÔòÔöÁ¿ÅÀÈ¡½«²»¿ÉÓÃ.\n");
-					line();
-					printf("°´¼ü 1:ÍË³ö\n");
-					printf("°´¼ü ÆäËû:¼ÌĞøÅÀÈ¡\n");
-					choose=_getch()-'0';
-					if(choose==1)return 1;
-					system("cls");
+		line;prt("æŒ‰é”® 1:ä¸€èˆ¬çˆ¬å–\n");prt("æŒ‰é”® 2:å•é¢˜çˆ¬å–\n");
+		sprt(option,"record/%s/last.txt",_uid.c_str());fin.open(option,ios::in);
+		if(optRes=fin.is_open()){fin>>lstRid;fin.close();prt("æŒ‰é”® 3:å¢é‡çˆ¬å–\n");}
+		prt("æŒ‰é”® å…¶ä»–:è¿”å›\n");
+		choice=chos;
+		if(choice==1){
+			lstRid=0;
+			sprt(option,"rd /S /Q \"record/%s\" > nul",_uid.c_str());sys(option);
+			sprt(option,"rd /S /Q \"code/%s\" > nul",_uid.c_str());sys(option);
+		}else if(choice==2){
+			topbar("ä»£ç çˆ¬å–");prt("é”®å…¥ç›®æ ‡é¢˜å·:");cin>>tarPid;lstRid=0;firRid=-1;
+			sprt(option,"del \"problem/%s.txt\" > nul",tarPid.c_str());sys(option);
+			sprt(option,"del \"record/%s/%s_best.txt\" > nul",_uid.c_str(),tarPid.c_str());sys(option);
+			sprt(option,"record/%s/%s.txt",_uid.c_str(),tarPid.c_str());fin.open(option,ios::in);
+			if(fin.is_open()){
+				while(true){
+					codeName="";getline(fin,codeName);if(codeName.empty())break;
+					sprt(option,"del \"code/%s/%s\" > nul",_uid.c_str(),codeName.c_str());
+					sys(option);fin>>subtim>>rid>>lang;
 				}
 			}
-			
+			fin.close();sprt(option,"del \"record/%s/%s.txt\" > nul",_uid.c_str(),tarPid.c_str());sys(option);
+		}else if(choice==3&&optRes){
+			topbar("ä»£ç çˆ¬å–");prt("è‹¥ä½¿ç”¨æ­¤åŠŸèƒ½,å»ºè®®è®¾ç½®ä¸ä¸Šæ¬¡ä¿æŒä¸€è‡´.\n");
+			prt("çˆ¬å–çš„è¿è¡Œå·ä¸‹é™ä¸º: %d\n",lstRid);line;
+			prt("æŒ‰é”® 1:å¼€å§‹çˆ¬å–\n");prt("æŒ‰é”® å…¶ä»–:é€€å‡º\n");choice=chos;
+			if(choice!=1)return -2;
+		}else return -2;
+		
+	}
+	sys("cls");
+	sprt(option,"md \"record/%s\" > nul",_uid.c_str());sys(option);
+	sprt(option,"md \"code/%s\" > nul",_uid.c_str());sys(option);sys("md problem > nul");
+	
+
+	prt("ä»£ç çˆ¬å–å¼€å§‹\n");
+	
+
+	for(int page=1;exist;page++){
+		sprt(tarUrl,"\"https://www.luogu.com.cn/record/list?user=%s&status=12&page=%d&pid=%s\"",_uid.c_str(),page,tarPid.c_str());
+		sprt(option,"%s -s %s %s > tmp.txt",curlHead,tarUrl,cookie);sys(option);prt("æ­£åœ¨çˆ¬å–æäº¤è®°å½•çš„ç¬¬%dé¡µ\n",page); 
+		if(optRes=system(option)){
+			do{
+				topbar("ä»£ç çˆ¬å–");
+				prt("ä»£ç çˆ¬å–å› ä¸ºæŸäº›åŸå› åœæ­¢.\n");
+				prt("æ£€æŸ¥ç½‘ç»œè¿æ¥,æˆ–æé«˜è¶…æ—¶æ—¶é—´.\n");
+				line;prt("æŒ‰é”® 1:é‡è¯•\n");prt("æŒ‰é”® å…¶ä»–:è¿”å›\n");
+				choice=chos;if(choice!=1)return 0;sys("cls");
+			}while(optRes=system(option));
+		}
+		fin.open("tmp.txt",ios::in);exist=0;pos=0;
+		for(i=1;i<=13;i++)html="",getline(fin,html);fin.close();
+		
+		while(html[++pos]){
+			if(_kbhit()) {
+				choice=chos;
+				if(choice==27-'0'){
+					topbar("ä»£ç çˆ¬å–");
+					prt("ä»£ç çˆ¬å–å·²è¢«æš‚åœ.\n");prt("å¦‚æœæ­¤æ—¶é€€å‡º,åˆ™å¢é‡çˆ¬å–å°†ä¸å¯ç”¨.\n");
+					line;prt("æŒ‰é”® 1:é€€å‡º\n");prt("æŒ‰é”® å…¶ä»–:ç»§ç»­çˆ¬å–\n");
+					choice=chos;if(choice==1)return 0;sys("cls");
+				}
+			}
 			matched=1;
-			for(int j=0;j<sign[0].length()&&matched;j++)if(sign[0][j]!=html[pos+j])matched=0;
+			for(j=0;j<sign[0].length()&&matched;j++)if(sign[0][j]!=html[pos+j])matched=0;
 			if(!matched)continue;
 			exist=1;pos+=12;
-			tim=0,mem=0,diff=0,len=0,subtim=0,lang=0,rid=0,status=0;pidS="\0";
+			tim=0,mem=0,diff=0,len=0,subtim=0,lang=0,rid=0,status=0;pidS="";cid="";
 			while(html[++pos]!='%')tim=(tim<<1)+(tim<<3)+(html[pos]&15);
-			for(int i=1;i<=8;i++){
+			for(i=1;i<=8;i++){
 				matched=0;
 				while(!matched){
-					matched=1;
-					for(int j=0;j<sign[i].length()&&matched;j++)if(sign[i][j]!=html[pos+j])matched=0;
-					if(!matched){
-						if(html[++pos]==')')return 0;
+					matched=1;cp_matched=1;
+					for(j=0;j<sign[i].length()&&matched;j++)if(sign[i][j]!=html[pos+j])matched=0;
+					for(j=0;j<cp_sign.length()&&cp_matched;j++)if(cp_sign[j]!=html[pos+j])cp_matched=0;
+					if(cp_matched){
+						pos=pos+cp_sign.length()-1;
+						while(html[++pos]!='%')cid+=html[pos];
+					}else if(!matched){
+						if(html[++pos]==')'){
+							return firRid;
+						}
 					}else pos=pos+sign[i].length()-1;
 				}
 				if(i==1)while(html[++pos]!='%')mem=(mem<<1)+(mem<<3)+(html[pos]&15);
@@ -281,731 +286,557 @@ bool getCode(){
 				else while(html[++pos]!='%')status=(status<<1)+(status<<3)+(html[pos]&15);
 			}
 			if(!firRid)firRid=rid;
-			if(rid<=lstRid){return 0;}
-			printf("ÔËĞĞºÅ:%d ÌâºÅ:%s Ê±¼ä:%d ÄÚ´æ:%d ÄÑ¶È:%d ´úÂë³¤¶È:%d Ìá½»Ê±¼ä:%d ÓïÑÔ:%d ×´Ì¬:%d\n",rid,pidS.c_str(),tim,mem,diff,len,subtim,lang,status);
-			save=0;
+			if(rid<=lstRid){
+				return firRid;
+			}
 			
-			sprintf(option,"copy /Y \"history\\%s\\%s.txt\" tmp.txt > nul ",_uid,pidS.c_str());optionRet=system(option);
-			
-			if(!optionRet){
-				freopen("tmp.txt","r",stdin);
-				probNameS="\0";getline(cin,probNameS);
-				codeNameS="\0";getline(cin,codeNameS);
-				for(int i=0,val;i<=3;i++){
-					scanf("%d",&val);
-					if(order[i]==1){
-						if(val>tim){save=1;break;}
-						else if(val<tim){save=0;break;}
-					}else if(order[i]==2){
-						if(val>mem){save=1;break;}
-						else if(val<mem){save=0;break;}
-					}else if(order[i]==3){
-						if(val>len){save=1;break;}
-						else if(val<len){save=0;break;}
-					}else if(order[i]==4){
-						if(val<subtim){save=1;break;}
-						else {save=0;break;}
-					}else{
-						if(val>subtim){save=1;break;}
-						else {save=0;break;}
+			prt("è¿è¡Œå·:%d é¢˜å·:%s æ¯”èµ›:%s\n",rid,pidS.c_str(),cid.empty()?"N/A":cid.c_str());
+			sprt(option,"problem/%s.txt",pidS.c_str());fin.open(option,ios::in);
+			if(fin.is_open()){
+				getline(fin,probNameS);
+				fin.close();
+			}else{
+				probNameS=getProbName(pidS,cid);
+				fout.open("tmp.txt",ios::out);fout<<probNameS;fout.close();
+				sprt(option,"move /Y \"tmp.txt\" \"problem/%s.txt\" > nul",pidS.c_str());
+				sys(option);
+			}
+			isBest=0,needSave=0;
+			sprt(option,"copy /Y \"record/%s/%s_best.txt\" \"tmp.txt\" > nul",_uid.c_str(),pidS.c_str());
+			if(!sys(option)){
+				
+				fin.open("tmp.txt",ios::in);
+				fin>>bst_tim>>bst_mem>>bst_len>>bst_subtim;
+				fin.close();
+				for(i=1;i<=4;i++){
+					if(saveOrder[i]==1){
+						if(bst_tim<tim){isBest=0;break;}
+						else if(bst_tim>tim){isBest=1;break;}
+					}else if(saveOrder[i]==2){
+						if(bst_mem<mem){isBest=0;break;}
+						else if(bst_mem>mem){isBest=1;break;}
+					}else if(saveOrder[i]==3){
+						if(bst_len<len){isBest=0;break;}
+						else if(bst_len>len){isBest=1;break;}
+					}else if(saveOrder[i]==4){
+						if(bst_subtim>subtim){isBest=0;break;}
+						else if(bst_subtim<subtim){isBest=1;break;}
+					}else if(saveOrder[i]==5){
+						if(bst_subtim<subtim){isBest=0;break;}
+						else if(bst_subtim>subtim){isBest=1;break;}
 					}
 				}
-				cloIn();
-			}else probNameS=getProbName(pidS);
-			
-			if((!save)||(status!=12)){
-				if(optionRet){
-					freopen("tmp.txt","w",stdout);
-					printf("%s\n-\n0 0 0 0 0",probNameS.c_str());
-					cloOut();
-					sprintf(option,"move /Y \"tmp.txt\" \"history\\%s\\%s.txt\" > nul ",_uid,pidS.c_str());system(option);
+				if(isBest||saveAll)needSave=1;
+			}else needSave=1,isBest=1;
+			//compare code's performance
+			if(isBest){
+				fout.open("tmp.txt",ios::out);
+				fout<<tim<<" "<<mem<<" "<<len<<" "<<subtim;
+				fout.close();
+				sprt(option,"move /Y \"tmp.txt\" \"record/%s/%s_best.txt\" > nul",_uid.c_str(),pidS.c_str());
+				sys(option);
+			}
+			//save performance's information
+
+			if(needSave){
+				//cout<<" ä¿å­˜"<<endl;
+				if(!saveAll){
+					sprt(option,"copy /Y \"record/%s/%s.txt\" \"tmp.txt\" > nul",_uid.c_str(),pidS.c_str());
+					if(!sys(option)){
+						fin.open("tmp.txt",ios::in);
+						while(true){
+							codeName="";getline(fin,codeName);if(codeName.empty())break;
+							sprt(option,"del \"code/%s/%s\" > nul",_uid.c_str(),codeName.c_str());sys(option);
+							fin>>subtim>>rid>>lang;
+						}
+						fin.close();
+						sprt(option,"del \"record/%s/%s.txt\" > nul",_uid.c_str(),pidS.c_str());sys(option);
+					}
 				}
-				printf("¸ÃÌá½»¼ÇÂ¼µÄ´úÂë±£´æÒÑÌø¹ı\n");
-			}else{
-				if((!optionRet)&&codeNameS[0]=='-'){sprintf(option,"del \"code\\%s\\%s\" > nul ",_uid,codeNameS.c_str());system(option);}
+				//clear needless code and record information
+
+				codeName="";codeName+=pidS;
+				if(fileName[1])codeName+=" ",codeName+=probNameS;
+				if(fileName[2])codeName+=" ",codeName+=timCov(subtim);
+				if(fileName[3])codeName+=" ",codeName+=numCov(rid);
+				codeName+=langID(lang);
+				//produce codename
+
+				sprt(option,"record/%s/%s.txt",_uid.c_str(),pidS.c_str());
+				if(saveAll)fout.open(option,ios::app);else fout.open(option,ios::out);
+				fout<<codeName<<endl<<subtim<<" "<<rid<<" "<<lang<<endl;fout.close();
+				//update record informance
 				
-				codeNameS="\0";codeNameS+=pidS;
-				if(fileName[0])codeNameS+=" ",codeNameS+=probNameS;
-				if(fileName[1])codeNameS+=" ",codeNameS+=timCov(subtim);
-				if(fileName[2])codeNameS+=" ",codeNameS+=numCov(rid);
-				codeNameS+=langID(lang);
-				
-				
-				printf("¸ÃÌá½»¼ÇÂ¼´úÂë½«±»±£´æÎª: %s\n",codeNameS.c_str());
-				
-				Sleep(delayTim);
-				sprintf(tarUrl,"\"https://www.luogu.com.cn/record/%d\"",rid);
-				sprintf(option,"curl --connect-timeout %d -s %s --cookie \"_uid=%s;__client_id=%s\" > tmp.txt",timLim,tarUrl,_uid,__client_id);
-				optionRet=system(option);
-				if(optionRet){
-					topbar("´úÂëÅÀÈ¡");
-					printf("´úÂëÅÀÈ¡ÒòÎªÄ³Ğ©Ô­ÒòÍ£Ö¹.\n");
-					printf("¼ì²éÍøÂçÁ¬½Ó,»òÌá¸ß³¬Ê±Ê±¼ä.\n");
-					line();
-					printf("°´¼ü ËùÓĞ:·µ»Ø\n");
-					_getch();
-					return 1;
+				Sleep(delayTime);
+				sprt(tarUrl,"\"https://www.luogu.com.cn/record/%d\"",rid);
+				sprt(option,"%s -s %s %s > tmp.txt",curlHead,tarUrl,cookie);sys(option);
+				if(optRes=system(option)){
+					do{
+						topbar("ä»£ç çˆ¬å–");
+						prt("ä»£ç çˆ¬å–å› ä¸ºæŸäº›åŸå› åœæ­¢.\n");
+						prt("æ£€æŸ¥ç½‘ç»œè¿æ¥,æˆ–æé«˜è¶…æ—¶æ—¶é—´.\n");
+						line;prt("æŒ‰é”® 1:é‡è¯•\n");prt("æŒ‰é”® å…¶ä»–:è¿”å›\n");
+						choice=chos;if(choice!=1)return 0;sys("cls");
+					}while(optRes=system(option));
 				}
 				
 				//saveCode
-				int fn=0,bk=0;codeS="\0";
-				const string fSign="sourceCode%22%3A%22",bSign="%22%2C%22time%22%3A";
-				freopen("tmp.txt","r",stdin);
-				for(int i=1;i<=13;i++)code="\0",getline(cin,code);
-				cloIn();system("del tmp.txt > nul ");
+				fn=0,bk=0;codeS="";
+				
+				fin.open("tmp.txt",ios::in);
+				for(i=1;i<=13;i++)code="",getline(fin,code);
+				fin.close();
 				bk=code.length()-18;
-				while(++fn){
-					matched=1;
-					for(int i=0;i<=18&&matched;i++)if(code[fn+i]!=fSign[i])matched=0;
-					if(matched){fn+=19;break;}
-				}
-				while(--bk){
-					matched=1;
-					for(int i=0;i<=18&&matched;i++)if(code[bk+i]!=bSign[i])matched=0;
-					if(matched){bk-=1;break;}
-				}
-				for(int i=fn;i<=bk;i++)codeS+=code[i];
-				code="\0";code=urlDecode(codeS);
-				int codeLen=code.length();
-				freopen("tmp.txt","w",stdout);
-				for(int i=0;i<codeLen;i++){
+				while(++fn){matched=1;for(i=0;i<=18&&matched;i++)if(code[fn+i]!=fSign[i])matched=0;if(matched){fn+=19;break;}}
+				while(--bk){matched=1;for(i=0;i<=18&&matched;i++)if(code[bk+i]!=bSign[i])matched=0;if(matched){bk-=1;break;}}
+				for(i=fn;i<=bk;i++)codeS+=code[i];code="\0";code=urlDecode(codeS);int codeLen=code.length();
+				fout.open("tmp.txt",ios::out);
+				for(i=0;i<codeLen;i++){
 					if(code[i]=='\\'){
-						if(code[i+1]=='n')putchar('\n'),i++;
-						else if(code[i+1]=='r'){
-							putchar('\n');i++;
-							if(code[i+1]=='\\'&&code[i+2]=='n')i+=2;
-						}
-						else if(code[i+1]=='t')printf("    "),i++;
-						else putchar(code[i+1]),i++; 
-					}else putchar(code[i]);
+						if(code[i+1]=='n')fout<<endl,i++;
+						else if(code[i+1]=='r'){fout<<endl;i++;if(code[i+1]=='\\'&&code[i+2]=='n')i+=2;}
+						else if(code[i+1]=='t')fout<<"    ",i++;
+						else fout<<code[i+1],i++; 
+					}else fout<<code[i];
 				}
-				cloOut();
-				sprintf(option,"move /Y \"tmp.txt\" \"code\\%s\\%s\" > nul ",_uid,codeNameS.c_str());system(option);
-		
-				//saveResult
-				freopen("tmp.txt","w",stdout);
-				printf("%s\n%s\n%d %d %d %d %d\n",probNameS.c_str(),codeNameS.c_str(),tim,mem,len,subtim,rid);
-				printf("%d %d %d",fileName[0],fileName[1],fileName[2]);
-				cloOut();
-				sprintf(option,"move /Y \"tmp.txt\" \"history\\%s\\%s.txt\" > nul ",_uid,pidS.c_str());system(option);
-		
-			}
+				fout.close();
+				sprt(option,"move /Y \"tmp.txt\" \"code/%s/%s\" > nul ",_uid.c_str(),codeName.c_str());sys(option);
+			}//else cout<<" è·³è¿‡"<<endl;
 		}
 	}
-	
+	return firRid;
 }
-bool checkCookie(){
-	sprintf(tarUrl,"\"https://www.luogu.com.cn/\"");
-	sprintf(option,"curl --connect-timeout %d -s %s --cookie \"_uid=%s;__client_id=%s\" > tmp.txt",timLim,tarUrl,_uid,__client_id);system(option);
-			
-	int fn=0,bk=0,len;
-	string html;
-	bool matched=0;
-			
-	freopen("tmp.txt","r",stdin);
-	for(int i=1;i<=23;i++)html="\0",getline(cin,html);
-	cloIn();system("del tmp.txt > nul ");
-			
-	const string fSign="%22name%22%3A%22",bSign="%22%2C%22avatar%22%";
-	bk=(len=html.length())-18;
-	while(++fn<len-15){
-		matched=1;
-		for(int i=0;i<=15&&matched;i++)if(html[fn+i]!=fSign[i])matched=0;
-		if(matched){fn+=16;break;}
-	}
-	if(!matched)return 0;
-	while(--bk){
-		matched=1;
-		for(int i=0;i<=18&&matched;i++)if(html[bk+i]!=bSign[i])matched=0;
-		if(matched){bk-=1;break;}
-	}
-	userName="\0";
-	for(int i=fn;i<=bk;i++)userName+=html[i];
-	return 1;
+void manageCrawler(){
+	ifstream fin;ofstream fout;int retVal;
+	retVal=crawler();
+	if(retVal==-2)return;
+	topbar("çˆ¬å–å®Œæˆ");
+	if(retVal>0){
+		sprt(option,"record/%s/last.txt",_uid.c_str());
+		fout.open(option,ios::out);fout<<retVal;fout.close();
+		prt("ä»£ç çˆ¬å–æˆåŠŸå®Œæˆ.\nè½¬åˆ°ç®¡ç†,æå–æœ¬åœ°ä»£ç ä»¥æå–ä»£ç .\n");
+	}else if(retVal==0) prt("ä»£ç çˆ¬å–ç»“æŸ.\nè¿‡ç¨‹ä¸­å¯èƒ½å­˜åœ¨é”™è¯¯,å»ºè®®é‡æ–°çˆ¬å–.\n");
+	else if(retVal==-1) prt("å•é¢˜çˆ¬å–ç»“æŸ.\næ­¤çˆ¬å–æ•°æ®ä¸ç”¨äºå¢é‡çˆ¬å–.\n");
+	line;prt("æŒ‰é”® æ‰€æœ‰:è¿”å›é¦–é¡µ\n");chos;return;
 }
-int keyMaker(){
-	string GIDS=GID,UIDS=UID;
-	int charSum=0;
-	for(int i=0;i<GIDS.length();i++){
-		if(GID[i]=='-')continue;
-		charSum=(int)(GIDS[i]+UIDS[i]);
+void manageCode(){
+	if(!loginAble){
+		topbar("Cookieç®¡ç†"); 
+		prt("æ²¡æœ‰å¯ç”¨çš„ç™»å½•Cookie.\n");
+		prt("ä½ éœ€è¦æœ‰ä¸€ä¸ªCookie,ç„¶åæ‰èƒ½é’ˆå¯¹ä½ Cookieçš„ä»£ç è¿›è¡Œæ“ä½œ.\n");
+		line;prt("æŒ‰é”® æ‰€æœ‰:è¿”å›\n");chos;return;
 	}
-	return charSum;
-}
-void findCookie(){ 	
-	int key=keyMaker(),pos=-1,tmp;
-	freopen("cookie.txt","r",stdin);
-	scanf("%s",_uid);
+	ifstream fin;ofstream fout;
+	string tarPth,tarPid,probName,codeName,codeNameN,config;
+	const string skip_sign="_best.txt";bool skip;
+	vector<string> configName;
+	int subtim,rid,lang,configNum,proc;
 	while(true){
-		tmp=0;scanf("%d",&tmp);
-		if(!tmp)break;
-		__client_id[++pos]=(char)(tmp xor key);
+		topbar("ç®¡ç†,æå–æœ¬åœ°ä»£ç ");
+		prt("ä½ åªèƒ½å¯¹ä½ è´¦å·çš„ä»£ç å’Œå‚æ•°æ–‡ä»¶æ‰§è¡Œæ“ä½œ.\n");
+		prt("å½“å‰è´¦å·ç”¨æˆ·åç§°: %s (%s)\n",userName.c_str(),_uid.c_str());
+		line;
+		prt("æŒ‰é”® 1:æå–ä»£ç åˆ°æŒ‡å®šæ–‡ä»¶å¤¹\n");
+		prt("æŒ‰é”® 2:æ‰‹åŠ¨ä¿®æ”¹æŒ‡å®šé¢˜ç›®åç§°\n");
+		prt("æŒ‰é”® 3:å°†ä»£ç æŒ‰å½“å‰è®¾å®šçš„æ ¼å¼é‡å‘½å\n");
+		prt("æŒ‰é”® 4:åˆ é™¤çˆ¬å–çš„ä»£ç å’Œå‚æ•°æ–‡ä»¶\n");
+		prt("æŒ‰é”® å…¶ä»–:é€€å‡º\n");
+		choice=chos;
+		if(choice==1){
+			topbar("ç®¡ç†,æå–æœ¬åœ°ä»£ç ");
+			prt("é”®å…¥ç›®æ ‡æ–‡ä»¶å¤¹ç»å¯¹è·¯å¾„,æˆ–å°†ç›®æ ‡æ–‡ä»¶å¤¹æ‹–æ”¾åˆ°æ­¤çª—å£.\n");
+			prt("æ³¨æ„ç»å¯¹è·¯å¾„ä¸­ä¸è¦å‡ºç°éASCLLå­—ç¬¦æˆ–ASCLLä¸å¯è§å­—ç¬¦.\n");
+			prt("ç›®æ ‡æ–‡ä»¶å¤¹:");tarPth="";getline(cin,tarPth);
+			
+			topbar("ç®¡ç†,æå–æœ¬åœ°ä»£ç ");prt("è¯·ç­‰å¾…æå–å®Œæˆ...");
+			sprt(option,"md \"%s\\code_%s\" > nul",tarPth.c_str(),_uid.c_str());sys(option);
+			sprt(option,"xcopy \"code\\%s\" \"%s\\code_%s\" > nul",_uid.c_str(),tarPth.c_str(),_uid.c_str());
+			sys(option);
+			topbar("ç®¡ç†,æå–æœ¬åœ°ä»£ç ");prt("æ“ä½œå·²å®Œæˆ.\n");
+			line;prt("æŒ‰é”® æ‰€æœ‰:è¿”å›\n");chos;
+		}else if(choice==2){
+			topbar("ç®¡ç†,æå–æœ¬åœ°ä»£ç ");
+			prt("è¯·å°½é‡ä¸è¦é”®å…¥Windowsè·¯å¾„ä¸æ”¯æŒçš„å­—ç¬¦.\n");
+			prt("å¦åˆ™å½“é¢˜ç›®åç§°ä½œä¸ºæ–‡ä»¶åæ—¶ä¼šå‘ç”Ÿé”™è¯¯.\n");
+			prt("é‡å‘½åæ—¶å°†æŒ‰å½“å‰çš„æ–‡ä»¶åè®¾ç½®é‡å‘½åä»£ç .\n");
+			line;
+			prt("é”®å…¥é¢˜ç›®ç¼–å·:");getline(cin,tarPid);
+			
+			sprt(option,"record/%s/%s.txt",_uid.c_str(),tarPid.c_str());fin.open(option,ios::in);
+			if(fin.is_open()){
+				prt("é”®å…¥é¢˜ç›®åç§°:");getline(cin,probName);
+				sprt(option,"problem/%s.txt",tarPid.c_str());fout.open(option,ios::out);
+				fout<<probName;fout.close();
+				
+				fout.open("tmp.txt",ios::out);
+				while(true){
+					codeName="";getline(fin,codeName);
+					if(codeName.empty())break;
+					fin>>subtim>>rid>>lang;
+					codeNameN="";codeNameN+=tarPid;
+					if(fileName[1])codeNameN+=" ",codeNameN+=probName;
+					if(fileName[2])codeNameN+=" ",codeNameN+=timCov(subtim);
+					if(fileName[3])codeNameN+=" ",codeNameN+=numCov(rid);
+					codeNameN+=langID(lang);
+					sprt(option,"ren \"code\\%s\\%s\" \"%s\" > nul",_uid.c_str(),codeName.c_str(),codeNameN.c_str());
+					sys(option);
+					fout<<codeNameN<<endl<<subtim<<" "<<rid<<" "<<lang<<endl;
+				}
+				fin.close();fout.close();
+				sprt(option,"move \"tmp.txt\" \"record\\%s\\%s.txt\" > nul",_uid.c_str(),tarPid.c_str());
+				sys(option);
+				topbar("ç®¡ç†,æå–æœ¬åœ°ä»£ç ");prt("æ“ä½œå·²å®Œæˆ.\n");
+				line;prt("æŒ‰é”® æ‰€æœ‰:è¿”å›\n");chos;
+			}else{
+				topbar("ç®¡ç†,æå–æœ¬åœ°ä»£ç ");
+				prt("å½“å‰è´¦å·æ²¡æœ‰æœ¬é¢˜çš„æäº¤è®°å½•.\n");
+				line;prt("æŒ‰é”® æ‰€æœ‰:è¿”å›\n");chos;
+			}
+		}else if(choice==3){
+			topbar("ç®¡ç†,æå–æœ¬åœ°ä»£ç ");
+			prt("å¦‚æœä½ çˆ¬å–äº†æ‰€æœ‰ACä»£ç ,åˆ™è¿è¡Œå·å¿…é¡»åŒ…å«è¿›æ–‡ä»¶å.\n");
+			prt("å¦åˆ™ææ˜“å¯èƒ½å¯¼è‡´æ–‡ä»¶é‡åé€ æˆæ“ä½œå¤±è´¥.\n");line;
+			prt("ç¡®è®¤ä½ å½“å‰çš„æ–‡ä»¶åè®¾ç½®:\n");
+			prt("é¢˜å·");
+			if(fileName[1])prt(" é¢˜ç›®åç§°");
+			if(fileName[2])prt(" æäº¤æ—¶é—´");
+			if(fileName[3])prt(" è¿è¡Œå·");
+			enter;line;
+			prt("æŒ‰é”® 1:ç¡®è®¤å¹¶é‡å‘½å\n");prt("æŒ‰é”® 2:è¿”å›\n");
+			choice=chos;
+			if(choice!=1)continue;
+			topbar("ç®¡ç†,æå–æœ¬åœ°ä»£ç ");
+			prt("è¯·ç¨å,æ­£åœ¨å¤„ç†æ“ä½œ...\n");
+			vector<string>().swap(configName);
+			sprt(option,"dir /B \"record\\%s\" > tmp.txt",_uid.c_str());sys(option);
+			fin.open("tmp.txt",ios::in);
+			while(true){
+				config="";getline(fin,config);
+				if(config.empty())break;skip=1;
+				for(int i=1;i<=skip_sign.length()&&skip;i++)
+					if(config[config.length()-i]!=skip_sign[skip_sign.length()-i])skip=0;
+				if(!skip)configName.push_back(config);
+			}
+			fin.close();configNum=configName.size();
+			
+			for(int i=0;i<configNum;i++){
+				tarPid="";tarPid=configName[i];
+				for(int j=tarPid.length()-1;j>=0;j--)if(tarPid[j]=='.'){tarPid.erase(j);break;}
+				sprt(option,"problem/%s.txt",tarPid.c_str());
+				fin.open(option,ios::in);
+				if(!fin.is_open())continue;
+				fin>>probName;fin.close();
+				sprt(option,"record/%s/%s",_uid.c_str(),configName[i].c_str());
+				
+				fin.open(option,ios::in);
+				if(!fin.is_open())continue;
+				fout.open("tmp.txt",ios::out);
+				while(true){
+					codeName="";getline(fin,codeName);
+					if(codeName.empty())break;
+					fin>>subtim>>rid>>lang;
+					codeNameN="";codeNameN+=tarPid;
+					if(fileName[1])codeNameN+=" ",codeNameN+=probName;
+					if(fileName[2])codeNameN+=" ",codeNameN+=timCov(subtim);
+					if(fileName[3])codeNameN+=" ",codeNameN+=numCov(rid);
+					codeNameN+=langID(lang);
+					sprt(option,"ren \"code\\%s\\%s\" \"%s\" > nul",_uid.c_str(),codeName.c_str(),codeNameN.c_str());
+					fout<<codeNameN<<endl<<subtim<<" "<<rid<<" "<<lang<<endl;
+				}
+				fin.close();fout.close();
+				sprt(option,"move \"tmp.txt\" \"record\\%s\\%s.txt\" > nul",_uid.c_str(),tarPid.c_str());
+				sys(option);
+			}
+			fin.close();fout.close();
+			vector<string>().swap(configName);
+			topbar("ç®¡ç†,æå–æœ¬åœ°ä»£ç ");prt("æ“ä½œå·²å®Œæˆ.\n");
+			line;prt("æŒ‰é”® æ‰€æœ‰:è¿”å›\n");chos;
+		}else if(choice==4){
+			topbar("ç®¡ç†,æå–æœ¬åœ°ä»£ç ");
+			prt("ç¡®è®¤è¦åˆ é™¤å·²çˆ¬å–çš„ä»£ç å’Œå‚æ•°æ–‡ä»¶å—?\n");
+			prt("è‹¥æ‰§è¡Œæ­¤æ“ä½œ,åˆ™ä¸‹æ¬¡éœ€è¦é‡æ–°çˆ¬å–.\n");line;
+			prt("æŒ‰é”® 1:åˆ é™¤\n");prt("æŒ‰é”® å…¶ä»–:é€€å‡º\n");
+			choice=chos;if(choice!=1)continue;
+			sprt(option,"rd /S /Q \"record\\%s\" > nul",_uid.c_str());sys(option);
+			sprt(option,"rd /S /Q \"code\\%s\" > nul",_uid.c_str());sys(option);
+			topbar("ç®¡ç†,æå–æœ¬åœ°ä»£ç ");prt("æ“ä½œå·²å®Œæˆ.\n");
+			line;prt("æŒ‰é”® æ‰€æœ‰:è¿”å›\n");chos;
+		}else break;
 	}
-	cloIn();
-	if(checkCookie())localSave=1,loginAble=1;
-	else system("del cookie.txt > nul ");
 }
 void manageCookie(){
+	ifstream fin;ofstream fout;
 	while(true){
-		topbar("Cookie¹ÜÀí");
-		if(!loginAble)printf("Ã»ÓĞ¿ÉÓÃµÄÉí·İÑéÖ¤Cookie.\nÄã¿ÉÒÔ´Óä¯ÀÀÆ÷»òÓĞ¹ØÎÄ¼ş¼Ğ»ñÈ¡Cookie.\n"); 
-		else {
-			cout<<"¿ÉÓÃµÄLuoguÕË»§Ãû:"<<userName<<endl;
-			cout<<"CookieÒÑ±£´æµ½¼ÆËã»ú±¾µØ:";
-			localSave?printf("ÊÇ\n"):printf("·ñ\n");
+		topbar("Cookieç®¡ç†");
+		if(!loginAble)prt("æ²¡æœ‰å¯ç”¨çš„èº«ä»½éªŒè¯Cookie.\nä½ å¯ä»¥ä»æµè§ˆå™¨æˆ–æœ‰å…³æ–‡ä»¶å¤¹è·å–Cookie.\n"); 
+		else{
+			cout<<"å¯ç”¨çš„Luoguè´¦æˆ·å:"<<userName<<endl;
+			cout<<"Cookieå·²åŠ å¯†ä¿å­˜åˆ°è®¡ç®—æœºæœ¬åœ°:";readAble?printf("æ˜¯\n"):printf("å¦\n");
 		}
-		line();
-		if(loginAble)printf("°´¼ü 1:¸üĞÂCookie\n");
-		else printf("°´¼ü 1:¼üÈëCookie\n"); 
-		if(!localSave)printf("°´¼ü 2:½«Cookie±£´æµ½¼ÆËã»ú\n");
-		else printf("°´¼ü 2:½«±£´æµÄCookie´Ó¼ÆËã»úÖĞÉ¾³ı\n");
-		printf("°´¼ü ÆäËû:ÍË³öCookie¹ÜÀí\n");
-		choose=_getch()-'0';
-		if(choose==1){
-			topbar("Cookie¹ÜÀí");
-			printf("ÔÚÏÂ·½¼üÈë³ÌĞòÒªÇóµÄCookie.\n");
-			printf("Cookie±¾µØ±£´æ×´Ì¬ÒÑÖØÖÃ.\n");
-			line();
-			memset(_uid,0,sizeof _uid);memset(__client_id,0,sizeof __client_id);
-			loginAble=0;localSave=0;system("del cookie.txt > nul ");
-			printf("_uid=");scanf("%s",_uid);
-			printf("__client_id=");scanf("%s",__client_id);
-			topbar("Cookie¹ÜÀí");
-			printf("ÕıÔÚÑéÖ¤ÄãËù¼üÈëµÄCookie...");
+		line;loginAble?prt("æŒ‰é”® 1:æ›´æ–°Cookie\n"):prt("æŒ‰é”® 1:é”®å…¥Cookie\n"); 
+		readAble?prt("æŒ‰é”® 2:å°†ä¿å­˜çš„Cookieä»è®¡ç®—æœºä¸­åˆ é™¤\n"):prt("æŒ‰é”® 2:å°†Cookieä¿å­˜åˆ°è®¡ç®—æœº\n");
+		prt("æŒ‰é”® å…¶ä»–:é€€å‡ºCookieç®¡ç†\n");
+		choice=chos;
+		if(choice==1){
+			topbar("Cookieç®¡ç†");
+			prt("åœ¨ä¸‹æ–¹é”®å…¥ç¨‹åºè¦æ±‚çš„Cookie.\n");prt("Cookieæœ¬åœ°ä¿å­˜çŠ¶æ€å·²é‡ç½®.\n");line;
+			_uid="";__client_id="";loginAble=0;readAble=0;sys("del cookie.txt > nul");
+			prt("_uid=");getline(cin,_uid);prt("__client_id=");getline(cin,__client_id);
+			sprt(cookie,"--cookie \"_uid=%s;__client_id=%s\"",_uid.c_str(),__client_id.c_str());
+			topbar("Cookieç®¡ç†");prt("æ­£åœ¨éªŒè¯ä½ æ‰€é”®å…¥çš„Cookie...");
 			if(!checkCookie()){
-				topbar("Cookie¹ÜÀí");
-				printf("Äã¼üÈëµÄCookieÎ´ÄÜ±»ÑéÖ¤.\n");
-				printf("¼ì²éÄãµÄ¼üÈë,»ò²é¿´CookieÊÇ·ñÒÑ¾­¹ıÆÚ.\n");
-				line();
-				printf("°´¼ü ËùÓĞ:·µ»Ø\n");
-				_getch();
+				topbar("Cookieç®¡ç†");
+				prt("ä½ é”®å…¥çš„Cookieæœªèƒ½è¢«éªŒè¯.\n");
+				prt("æ£€æŸ¥ä½ çš„é”®å…¥,æˆ–æŸ¥çœ‹Cookieæ˜¯å¦å·²ç»è¿‡æœŸ.\n");
+				line;prt("æŒ‰é”® æ‰€æœ‰:è¿”å›\n");chos;
 				continue; 
 			}
+			loginAble=1;topbar("Cookieç®¡ç†");prt("ä½ é”®å…¥çš„Cookieå·²è¢«æˆåŠŸéªŒè¯.\n");
+			cout<<"è¿™ä¸ªCookieçš„ç”¨æˆ·åä¸º:"<<userName<<endl; 
+			line;prt("æŒ‰é”® æ‰€æœ‰:è¿”å›\n");chos;
 			
-			loginAble=1;
-			topbar("Cookie¹ÜÀí");
-			printf("Äã¼üÈëµÄCookieÒÑ±»³É¹¦ÑéÖ¤.\n");
-			cout<<"Õâ¸öCookieµÄÓÃ»§ÃûÎª:"<<userName<<endl; 
-			line();
-			printf("°´¼ü ËùÓĞ:·µ»Ø\n");
-			_getch();
-			
-		}else if(choose==2){
-			if(localSave){
-				 topbar("Cookie¹ÜÀí");
-				 printf("¸Ã²Ù×÷½«É¾³ı´æ´¢ÔÚµçÄÔÉÏµÄCookieĞÅÏ¢.\n");
-				 printf("´ËÊ±,ÄãÈÔÈ»¿ÉÒÔÕı³£µÇÂ¼,µ«ÔÚ¹Ø±Õ³ÌĞòºó½«ÎŞ·¨µÇÂ¼.\n");
-				 line();
-				 printf("°´¼ü 1:È·ÈÏÉ¾³ıCookieĞÅÏ¢\n");
-				 printf("°´¼ü ÆäËû:È¡Ïû²Ù×÷\n");
-				 choose=_getch()-'0';
-				 if(choose==1){
-			    	 system("del cookie.txt > nul ");
-			    	 localSave=0;
-				 }
+		}else if(choice==2){
+			if(readAble){
+				 topbar("Cookieç®¡ç†");
+				 prt("è¯¥æ“ä½œå°†åˆ é™¤å­˜å‚¨åœ¨ç”µè„‘ä¸Šçš„Cookieä¿¡æ¯.\n");
+				 prt("æ­¤æ—¶,ä½ ä»ç„¶å¯ä»¥æ­£å¸¸ç™»å½•,ä½†åœ¨å…³é—­ç¨‹åºåå°†æ— æ³•ç™»å½•.\n");
+				 line;prt("æŒ‰é”® 1:ç¡®è®¤åˆ é™¤Cookieä¿¡æ¯\n");prt("æŒ‰é”® å…¶ä»–:å–æ¶ˆæ“ä½œ\n");choice=chos;
+				 if(choice==1){system("del cookie.txt > nul ");readAble=0;}
 			}else{
-				 topbar("Cookie¹ÜÀí");
+				 topbar("Cookieç®¡ç†");
 				 if(!loginAble){
-				 	printf("Ã»ÓĞ¿É¹©±£´æµÄCookie.\n");
-				 	printf("ÇëÏÈ¼üÈëCookie,ÈôÑéÖ¤Í¨¹ıÔò¿ÉÒÔ±£´æ.\n");
-				 	line();
-				 	printf("°´¼ü ËùÓĞ:·µ»Ø\n");
-				 	_getch();
-				 	continue;
+				 	prt("æ²¡æœ‰å¯ä¾›ä¿å­˜çš„Cookie.\n");prt("è¯·å…ˆé”®å…¥Cookie,è‹¥éªŒè¯é€šè¿‡åˆ™å¯ä»¥ä¿å­˜.\n");
+				 	line;prt("æŒ‰é”® æ‰€æœ‰:è¿”å›\n");chos;continue;
 				 }
-				 printf("¸Ã²Ù×÷½«»á°ÑÄãËù¼üÈëµÄCookieĞ´Èë¼ÆËã»úÖĞ.\n");
-				 printf("ÕâÊ¹µÃÄãÏÂ´ÎÆô¶¯³ÌĞòÊ±ÎŞĞèÔÙ¼üÈëCookie.\n");
-				 line();
-				 printf("°´¼ü 1:È·ÈÏ±£´æCookieĞÅÏ¢\n");
-				 printf("°´¼ü ÆäËû:È¡Ïû²Ù×÷\n");
-				 choose=_getch()-'0';
-				 if(choose==1){
-			    	 freopen("cookie.txt","w",stdout);
-					 printf("%s\n",_uid); 
-					 int key=keyMaker();
-					 for(int i=0;i<strlen(__client_id);i++)printf("%d ",(int)((int)(__client_id[i]) xor key));
-					 printf("0");
-					 cloOut();
-			    	 localSave=1;
+				 prt("è¯¥æ“ä½œå°†ä¼šæŠŠä½ æ‰€é”®å…¥çš„Cookieå†™å…¥è®¡ç®—æœºä¸­.\n");prt("è¿™ä½¿å¾—ä½ ä¸‹æ¬¡å¯åŠ¨ç¨‹åºæ—¶æ— éœ€å†é”®å…¥Cookie.\n");
+				 line;prt("æŒ‰é”® 1:ç¡®è®¤ä¿å­˜Cookieä¿¡æ¯\n");prt("æŒ‰é”® å…¶ä»–:å–æ¶ˆæ“ä½œ\n");choice=chos;
+				 if(choice==1){
+				 	string tmp=__client_id;cookieCoder(0);
+			    	
+			    	fout.open("cookie.txt",ios::out);
+			    	fout<<_uid<<endl<<__client_id;
+			    	fout.close();__client_id=tmp;readAble=1;
 				 }			 
 			}
 		}else return;		
-	}
-	
-}
-void saveSetting(){
-	freopen("setting.txt","w",stdout);
-	for(int i=0;i<=3;i++)printf("%d ",order[i]);printf("\n");
-	for(int i=0;i<=2;i++)printf("%d ",fileName[i]);printf("\n");
-	printf("%d %d",timLim,delayTim);
-	cloOut();
-}
-void findSetting(){
-	freopen("setting.txt","r",stdin);
-	for(int i=0;i<=3;i++)scanf("%d ",&order[i]);
-	for(int i=0;i<=2;i++)scanf("%d ",&fileName[i]);
-	scanf("%d %d",&timLim,&delayTim);
-	cloIn();
-	if(!delayTim){
-		for(int i=0;i<=3;i++)order[i]=i+1;
-		timLim=5;delayTim=50;
-		saveSetting();
 	}
 }
 void setting(){
 	int lev=1,pos=1,sub;
 	while(1){
-		topbar("Ñ¡Ïî");
+		topbar("é€‰é¡¹");
 		if(lev==1){
-			pos==1?printf("¡ú"):printf("  ");printf("µ÷Õû±£´æÅĞ¶¨Ë³Ğò\n");
-			pos==2?printf("¡ú"):printf("  ");printf("ÉèÖÃ±£´æÊ±ÎÄ¼şÃû\n");
-			pos==3?printf("¡ú"):printf("  ");printf("ÉèÖÃÍøÂçÇëÇó²ÎÊı\n");
-			line();
-			printf("°´¼ü 1:ÇĞ»»ÏîÄ¿\n");
-			printf("°´¼ü 2:½øÈëÑ¡¶¨µÄÏîÄ¿\n");
-			printf("°´¼ü ÆäËû:±£´æ²¢ÍË³ö\n");
-			choose=_getch()-'0';
-			if(choose==1){pos++;if(pos==4)pos=1;}
-			else if(choose==2){lev++;sub=pos;pos=1;}
-			else {saveSetting();return;}
+			pos==1?prt("â†’"):prt("  ");prt("è°ƒæ•´ä¿å­˜åˆ¤å®šé¡ºåº\n");
+			pos==2?prt("â†’"):prt("  ");prt("è®¾ç½®ä¿å­˜æ—¶æ–‡ä»¶å\n");
+			pos==3?prt("â†’"):prt("  ");prt("è®¾ç½®ç½‘ç»œè¯·æ±‚å‚æ•°\n");
+			line;prt("æŒ‰é”® 1:åˆ‡æ¢é¡¹ç›®\n");prt("æŒ‰é”® 2:è¿›å…¥é€‰å®šçš„é¡¹ç›®\n");prt("æŒ‰é”® å…¶ä»–:ä¿å­˜å¹¶é€€å‡º\n");
+			choice=chos;
+			if(choice==1){pos++;if(pos==4)pos=1;}
+			else if(choice==2){lev++;sub=pos;pos=1;}
+			else {sprt(curlHead,"curl --connect-timeout %d",timeLimit);saveSetting();return;}
 		}else if(lev==2){
 			if(sub==1){
-				for(int i=1;i<=4;i++){
-					if(i==pos-1)printf("¡ü");
-					else if(i==pos)printf("¡ñ");
-					else if(i==pos+1)printf("¡ı");
-					else printf("  ");
+				if(saveAll){
+					prt("Luogu Submitting Crawlerå½“å‰ä¿å­˜æ‰€æœ‰ACä»£ç .\n");
+					prt("æ­¤æ—¶,è¿è¡Œå·å¿…é¡»ä½œä¸ºæ–‡ä»¶åç§°çš„ä¸€éƒ¨åˆ†.\n");
+					line;
+					prt("æŒ‰é”® 1:æ ¹æ®è‡ªå®šä¹‰è§„åˆ™ä¿å­˜æœ€ä¼˜ä»£ç .\n");
+					prt("æŒ‰é”® 2:è¿”å›ä¸Šä¸€çº§.\n");
+					choice=chos;if(choice==1)saveAll=!saveAll;else lev--,pos=1;
+				}else{
+					for(int i=1;i<=4;i++){
+						if(i==pos-1)prt("â†‘");
+						else if(i==pos)prt("â—");
+						else if(i==pos+1)prt("â†“");
+						else prt("  ");
+						
+						if(saveOrder[i]==1)prt("æ—¶é—´\n");
+						else if(saveOrder[i]==2)prt("å†…å­˜\n");
+						else if(saveOrder[i]==3)prt("ä»£ç é•¿åº¦\n");
+						else if(saveOrder[i]==4)prt("æäº¤æ—¶é—´(æ›´æ–°çš„)\n");
+						else prt("æäº¤æ—¶é—´(æ›´æ—§çš„)\n"); 
+					}
+					line;
+					prt("æŒ‰é”® 1:ä¿å­˜æ‰€æœ‰ACä»£ç \n");
+					prt("æŒ‰é”® 2:åˆ‡æ¢é¡¹ç›®\n");
+					prt("æŒ‰é”® 3:å°†å½“å‰é¡¹ä¸Šç§»\n");
+					prt("æŒ‰é”® 4:å°†å½“å‰é¡¹ä¸‹ç§»\n");
+					if(saveOrder[pos]==4||saveOrder[pos]==5){prt("æŒ‰é”® 5:æ›´æ”¹æ—¶é—´æ’åºè§„åˆ™\n");prt("æŒ‰é”® å…¶ä»–:è¿”å›ä¸Šä¸€çº§\n");}
+					else prt("æŒ‰é”® å…¶ä»–:è¿”å›ä¸Šä¸€çº§\n");
 					
-					if(order[i-1]==1)printf("Ê±¼ä\n");
-					else if(order[i-1]==2)printf("ÄÚ´æ\n");
-					else if(order[i-1]==3)printf("´úÂë³¤¶È\n");
-					else if(order[i-1]==4)printf("Ìá½»Ê±¼ä(¸üĞÂµÄ)\n");
-					else printf("Ìá½»Ê±¼ä(¸ü¾ÉµÄ)\n"); 
-				}
-				line();
-				printf("°´¼ü 1:ÇĞ»»ÏîÄ¿\n");
-				printf("°´¼ü 2:½«µ±Ç°ÏîÉÏÒÆ\n");
-				printf("°´¼ü 3:½«µ±Ç°ÏîÏÂÒÆ\n");
-				if(order[pos-1]==4||order[pos-1]==5){printf("°´¼ü 4:¸ü¸ÄÊ±¼äÅÅĞò¹æÔò\n");printf("°´¼ü ÆäËû:·µ»ØÉÏÒ»¼¶\n");}
-				else printf("°´¼ü ÆäËû:·µ»ØÉÏÒ»¼¶\n");
-				
-				choose=_getch()-'0';
-				if(choose==1){pos++;if(pos==5)pos=1;} 
-				else if(choose==2){if(pos>1)swap(order[pos-1],order[pos-2]),pos--;}
-				else if(choose==3){if(pos<4)swap(order[pos-1],order[pos]),pos++;}
-				else if(choose==4){
-					if(order[pos-1]==4||order[pos-1]==5){
-						if(order[pos-1]==4)order[pos-1]=5;
-						else order[pos-1]=4;
-					}else lev--,pos=1;
-				}else lev--,pos=1;	
+					choice=chos;
+					if(choice==1)saveAll=!saveAll,fileName[2]=1;
+					else if(choice==2){pos++;if(pos==5)pos=1;} 
+					else if(choice==3){if(pos>1)swap(saveOrder[pos],saveOrder[pos-1]),pos--;}
+					else if(choice==4){if(pos<4)swap(saveOrder[pos],saveOrder[pos+1]),pos++;}
+					else if(choice==5){if(saveOrder[pos]==4||saveOrder[pos]==5){if(saveOrder[pos]==4)saveOrder[pos]=5;else saveOrder[pos]=4;}else lev--,pos=1;}
+					else lev--,pos=1;
+				}	
 			}else if(sub==2){
-				for(int i=0;i<=2;i++){
-					pos==i+1?printf("¡ú"):printf("  ");
-					fileName[i]?printf("¡ö"):printf("¡õ");
-					if(i==0)printf("ÌâÄ¿Ãû³Æ\n");
-					else if(i==1)printf("Ìá½»Ê±¼ä\n");
-					else if(i==2)printf("ÔËĞĞºÅ\n"); 
+				for(int i=1;i<=3;i++){
+					pos==i?prt("â†’"):prt("  ");fileName[i]?prt("â– "):prt("â–¡");
+					if(i==1)prt("é¢˜ç›®åç§°\n");else if(i==2)prt("æäº¤æ—¶é—´\n");else if(i==3)prt("è¿è¡Œå·\n"); 
 				}
-				line();
-				printf("°´¼ü 1:ÇĞ»»ÏîÄ¿\n");
-				printf("°´¼ü 2:ÇĞ»»µ±Ç°Ñ¡¶¨ÏîÄ¿\n");
-				printf("°´¼ü ÆäËû:·µ»ØÉÏÒ»¼¶\n");
-				choose=_getch()-'0';
-				if(choose==1){pos++;if(pos==4)pos=1;}
-				else if(choose==2)fileName[pos-1]=!fileName[pos-1];
+				line;
+				prt("æŒ‰é”® 1:åˆ‡æ¢é¡¹ç›®\n");
+				prt("æŒ‰é”® 2:åˆ‡æ¢å½“å‰é€‰å®šé¡¹ç›®\n");
+				prt("æŒ‰é”® å…¶ä»–:è¿”å›ä¸Šä¸€çº§\n");
+				choice=chos;
+				if(choice==1){pos++;if(pos==4)pos=1;}
+				else if(choice==2)fileName[pos]=!fileName[pos];
 				else lev--,pos=1;
 			}else if(sub==3){
-				printf("µ÷ÕûÍøÂçÇëÇóµÄ²ÎÊı.\n");
-				printf("ÉèÖÃÇëÇó³ÖĞøÊ±¼äºÍÏàÁÚÇëÇóÖ®¼äµÄ¼ä¸ô.\n"); 
-				line();
-				pos==1?printf("¡ö"):printf("¡õ");printf("ÇëÇó³ÖĞøÊ±¼ä %ds",timLim);
-				if(timLim<5)printf(" (ÉèÖÃÖµ¿ÉÄÜ¹ıĞ¡)");printf("\n");
-				for(int i=3;i<=15;i++){
-					if(i<=timLim)printf("¡ñ");
-					else printf("¡ğ");
-				}
-				printf("\n");line();
-				pos==2?printf("¡ö"):printf("¡õ");printf("ÏàÁÚÇëÇó¼ä¸ô %dms",delayTim);
-				if(delayTim<100)printf(" (ÉèÖÃÖµ¿ÉÄÜ¹ıĞ¡)");printf("\n");
-				for(int i=50;i<=650;i+=50){
-					if(i<=delayTim)printf("¡ñ");
-					else printf("¡ğ");
-				}
-				printf("\n");line();
-				printf("°´¼ü 1:ÇĞ»»ÏîÄ¿\n");
-				printf("°´¼ü 2:Ôö¼ÓÊ±¼ä\n");
-				printf("°´¼ü 3:¼õÉÙÊ±¼ä\n");
+				prt("è°ƒæ•´ç½‘ç»œè¯·æ±‚çš„å‚æ•°.\n");
+				prt("è®¾ç½®è¯·æ±‚æŒç»­æ—¶é—´å’Œç›¸é‚»è¯·æ±‚ä¹‹é—´çš„é—´éš”.\n"); 
+				line;
+				pos==1?prt("â– "):prt("â–¡");prt("è¯·æ±‚æŒç»­æ—¶é—´ %ds",timeLimit);
+				if(timeLimit<5)prt(" (è®¾ç½®å€¼å¯èƒ½è¿‡å°)");prt("\n");
+				for(int i=3;i<=15;i++){if(i<=timeLimit)prt("â—");else prt("â—‹");}
+				prt("\n");line;
+				pos==2?prt("â– "):prt("â–¡");prt("ç›¸é‚»è¯·æ±‚é—´éš” %dms",delayTime);
+				if(delayTime<100)prt(" (è®¾ç½®å€¼å¯èƒ½è¿‡å°)");prt("\n");
+				for(int i=50;i<=650;i+=50){if(i<=delayTime)prt("â—");else prt("â—‹");}
 				
-				printf("°´¼ü ÆäËû:·µ»ØÉÏÒ»¼¶\n");
-				choose=_getch()-'0';
-				if(choose==1){pos++;if(pos==3)pos=1;}
-				else if(choose==2){
-					if(pos==1){if(timLim<15)timLim++;}
-					else if(pos==2){if(delayTim<650)delayTim+=50;}
-				}else if(choose==3){
-					if(pos==1){if(timLim>3)timLim--;}
-					else if(pos==2){if(delayTim>50)delayTim-=50;}					
+				prt("\n");line;
+				prt("æŒ‰é”® 1:åˆ‡æ¢é¡¹ç›®\n");
+				prt("æŒ‰é”® 2:å¢åŠ æ—¶é—´\n");
+				prt("æŒ‰é”® 3:å‡å°‘æ—¶é—´\n");
+				prt("æŒ‰é”® å…¶ä»–:è¿”å›ä¸Šä¸€çº§\n");
+				choice=chos;
+				if(choice==1){pos++;if(pos==3)pos=1;}
+				else if(choice==2){
+					if(pos==1){if(timeLimit<15)timeLimit++;}
+					else if(pos==2){if(delayTime<650)delayTime+=50;}
+				}else if(choice==3){
+					if(pos==1){if(timeLimit>3)timeLimit--;}
+					else if(pos==2){if(delayTime>50)delayTime-=50;}					
 				}else lev--,pos=1; 
 			}
 		}
 	}
-}
-
-void extract(){
-	while(1){
-		topbar("ÌáÈ¡/¹ÜÀí´úÂë");
-		if(!loginAble)printf("µ±Ç°Ã»ÓĞ¿ÉÓÃµÄCookie,ÇëÇ°ÍùCookie¹ÜÀíÒ³Ãæ¼üÈë.\n");
-		else printf("µ±Ç°CookieµÄÕË»§:%s(%s)\n",_uid,userName.c_str());
-		printf("²Ù×÷3,4ĞèÒª¿ÉÓÃµÄCookie,²Ù×÷µÄ¶ÔÏóÊÇÊôÓÚµ±Ç°_uidµÄ´úÂëºÍÌâÄ¿ÅäÖÃÎÄ¼ş.\n");
-		line(); 
-		printf("°´¼ü 1:ÌáÈ¡Ö¸¶¨_uidµÄÒÑ¾­ÅÀÈ¡µÄ´úÂë\n");
-		printf("°´¼ü 2:Çå³ıÒÑ¾­ÅÀÈ¡µÄËùÓĞÕË»§µÄ´úÂë\n");
-		printf("°´¼ü 3:ÖØĞÂÅÀÈ¡Ö¸¶¨ÌâºÅµÄÌâÄ¿Ãû³Æ\n");
-		printf("°´¼ü 4:°´µ±Ç°ÉèÖÃµÄ¸ñÊ½ÖØÃüÃûËùÓĞ´úÂë\n");
-		printf("°´¼ü ÆäËû:·µ»Ø\n");
-		choose=_getch()-'0';
-		if(choose==1){
-			topbar("ÌáÈ¡/¹ÜÀí´úÂë");
-			memset(tarUrl,0,sizeof tarUrl);
-			printf("Çë¼üÈëÄãµÄ_uid:");scanf("%s",tarUrl);
-			
-			sprintf(option,"dir \"code\\%s\" > nul ",tarUrl);
-			topbar("ÌáÈ¡/¹ÜÀí´úÂë");
-			printf("ÇëÉÔºó...\n");
-			if(system(option)){
-				topbar("ÌáÈ¡/¹ÜÀí´úÂë");
-				printf("Ã»ÓĞÕÒµ½Õâ¸ö_uid¶ÔÓ¦µÄ´úÂë.\n");
-				line();
-				printf("°´¼ü ËùÓĞ:·µ»Ø\n");
-				_getch();
-			}else{
-				topbar("ÌáÈ¡/¹ÜÀí´úÂë");
-				printf("ÇëÖ¸¶¨´úÂëÒªÌáÈ¡µ½µÄÎ»ÖÃ.\n");
-				printf("Äã¿ÉÒÔ¼üÈë¾ø¶ÔÂ·¾¶,»ò½«Ä¿±êÎÄ¼ş¼ĞÍÏ·Åµ½¸Ã´°¿Ú.\n");
-				printf("´úÂë½«±»¹éµµÎªLuoguCode.zip½øĞĞ±£´æ,ÈçÓĞÖØÃûÎÄ¼şÔò½«×Ô¶¯¸²¸Ç.\n");
-				line();
-				sprintf(option,"tar -cf LuoguCode.zip \"code\\%s\" > nul ",tarUrl);system(option);
-				memset(tarUrl,0,sizeof tarUrl);
-				printf("Ä¿±êÎÄ¼ş¼Ğ¾ø¶ÔÂ·¾¶:");scanf("%s",tarUrl);
-				sprintf(option,"move /Y LuoguCode.zip %s\\LuoguCode.zip > nul ",tarUrl);system(option);
-				topbar("ÌáÈ¡/¹ÜÀí´úÂë");
-				printf("²Ù×÷ÒÑÍê³É.\n");
-				line();
-				printf("°´¼ü ËùÓĞ:·µ»Ø\n");
-				_getch();
-			}
-		}else if(choose==2){
-			topbar("ÌáÈ¡/¹ÜÀí´úÂë");
-			printf("Õâ»áÇå³ıËùÓĞ´æ´¢ÔÚ¼ÆËã»úÉÏµÄÒÑ¾­ÅÀÈ¡µÄ´úÂë.\n");
-			printf("ÔöÁ¿ÅÀÈ¡Ò²½«Í¬Ê±²»ÔÙ¿ÉÓÃ.\n");
-			printf("ÇëÈ·ÈÏÄãµÄ²Ù×÷.\n");
-			line();
-			printf("°´¼ü 1:È·ÈÏÉ¾³ı\n");
-			printf("°´¼ü 2:·µ»Ø\n");
-			choose=_getch()-'0';
-			if(choose==1){
-				system("rd /S /Q code > nul ");
-				system("rd /S /Q history > nul ");
-				topbar("ÌáÈ¡/¹ÜÀí´úÂë");
-				printf("²Ù×÷ÒÑÍê³É.\n");
-				line();
-				printf("°´¼ü ËùÓĞ:·µ»Ø\n");
-				_getch();
-			}else continue; 
-		}else if(choose==3){
-			if(!loginAble){
-				topbar("ÌáÈ¡/¹ÜÀí´úÂë");
-				printf("ÇëÏÈ¼üÈëÒ»×éºÏ·¨µÄCookie.\n");
-				line();
-				printf("°´¼ü ËùÓĞ:·µ»Ø\n");
-				_getch();
-				continue;
-			}
-			string codeNameS,codeNameN="\0",pid,exName="\0";
-			int val[8];
-			topbar("ÌáÈ¡/¹ÜÀí´úÂë");
-			printf("Çë¼üÈëÌâºÅ:");
-			memset(tarUrl,0,sizeof tarUrl);scanf("%s",&tarUrl);
-			pid=(string)tarUrl;
-			topbar("ÌáÈ¡/¹ÜÀí´úÂë");
-			printf("ÇëÉÔºó...");
-			string probName=getProbName((string)tarUrl);
-			if(probName.empty()){
-				topbar("ÌáÈ¡/¹ÜÀí´úÂë");
-				printf("¼üÈëµÄÌâºÅÃ»ÓĞ¶ÔÓ¦µÄÌâÄ¿.\n");
-				printf("Çë¼ì²éÄãµÄÌâºÅ,È»ºóÖØÊÔ.\n");
-				line();
-				printf("°´¼ü ËùÓĞ:·µ»Ø\n");
-				_getch(); 
-			}else{
-				sprintf(option,"copy /Y \"history\\%s\\%s.txt\" tmp.txt > nul ",_uid,pid.c_str());optionRet=system(option);
-				if(optionRet){
-					freopen("tmp.txt","w",stdout);
-					printf("%s/n-/n0 0 0 0 0",probName.c_str());
-					cloOut();
-				}else{
-					freopen("tmp.txt","r",stdin);
-					getline(cin,codeNameS);codeNameS="\0";getline(cin,codeNameS);
-					if(codeNameS=="-"){
-						cloIn();
-						freopen("tmp.txt","w",stdout);
-						printf("%s/n-/n0 0 0 0 0",probName.c_str());
-						cloOut();
-					}else{
-						//1st=name,2nd=subTim,3rd=rid
-						for(int i=0;i<8;i++)scanf("%d",&val[i]);//tim,mem,len,subtim,rid
-						cloIn();
-						codeNameN+=pid;
-						if(val[5])codeNameN+=" ",codeNameN+=probName;
-						if(val[6])codeNameN+=" ",codeNameN+=timCov(val[3]);
-						if(val[7])codeNameN+=" ",codeNameN+=numCov(val[4]);
-						for(int i=codeNameS.length()-1;;i--){
-							exName+=codeNameS[i];
-							if(codeNameS[i]=='.')break;
-						}
-						reverse(exName.begin(),exName.end());
-						codeNameN+=exName;
-						freopen("tmp.txt","w",stdout);
-						printf("%s\n%s\n",probName.c_str(),codeNameN.c_str());
-						for(int i=0;i<8;i++){
-							printf("%d ",val[i]);
-							if(i==4)printf("\n");
-						}
-						cloOut();
-						sprintf(option,"move /Y \"tmp.txt\" \"history\\%s\\%s.txt\" > nul ",_uid,pid.c_str());system(option);
-						sprintf(option,"ren \"code\\%s\\%s\" \"%s\" > nul ",_uid,codeNameS.c_str(),codeNameN.c_str());system(option);
-						
-					}
-				}
-				topbar("ÌáÈ¡/¹ÜÀí´úÂë");
-				printf("ĞÂµÄÌâÄ¿Ãû³Æ:%s\n",probName.c_str());
-				if(!codeNameN.empty())printf("ĞÂµÄ´úÂëÃû³Æ:%s\n¾ÉµÄ´úÂëÃû³Æ:%s\n",codeNameN.c_str(),codeNameS.c_str());
-				else printf("±¾ÌâÃ»ÓĞAcceptedµÄ´úÂë.\n");
-				line();
-				printf("Ãû³ÆĞŞ¸ÄÒÑÍê³É.\n");
-				printf("Ãû³Æ¸ñÊ½ÒÀÕÕ´úÂë±£´æÊ±ËùÅäÖÃµÄ¸ñÊ½.\n");
-				line();
-				printf("°´¼ü ËùÓĞ:·µ»Ø\n");
-				_getch();
-			}
-		}else if(choose==4){
-			if(!loginAble){
-				topbar("ÌáÈ¡/¹ÜÀí´úÂë");
-				printf("ÇëÏÈ¼üÈëÒ»×éºÏ·¨µÄCookie.\n");
-				line();
-				printf("°´¼ü ËùÓĞ:·µ»Ø\n");
-				_getch();
-				continue;
-			}
-			topbar("ÌáÈ¡/¹ÜÀí´úÂë");
-			printf("ÔÚÏÂÃæÔ¤ÀÀµ±Ç°µÄÅäÖÃ\n");
-			line();
-			if(!(fileName[0]||fileName[1]))printf("Ã¿·İ´úÂëµÄÎÄ¼şÃû½öÎªÆäËù¶ÔÓ¦µÄÌâºÅ\n");
-			else{
-				printf("³ıÌâºÅÍâ,ÒÔÏÂĞÅÏ¢Ò²»á×÷Îª´úÂëÎÄ¼şÃûµÄÒ»²¿·Ö²¢°´ĞòÏÔÊ¾:\n");
-				if(fileName[0])printf("ÌâÄ¿Ãû³Æ ");
-				if(fileName[1])printf("Ìá½»Ê±¼ä "); 
-				if(fileName[2])printf("ÔËĞĞºÅ");
-				printf("\n"); 
-			}
-			line();
-			printf("°´¼ü 1:È·ÈÏÖØÃüÃû\n");
-			printf("°´¼ü ÆäËû:ÍË³ö\n");
-			choose=_getch()-'0';
-			if(choose!=1)continue;
-			topbar("ÌáÈ¡/¹ÜÀí´úÂë");
-			printf("ÇëÉÔºó...");
-			int num,val[5];
-			string pidS,probName,codeNameS,codeNameN,exName;
-			vector<string> pidL;
-			vector<string>().swap(pidL);
-			sprintf(option,"dir /b \"history\\%s\" > tmp.txt ",_uid);system(option);
-			system("echo END >> tmp.txt");
-			freopen("tmp.txt","r",stdin);
-			while(1){
-				pidS="";cin>>pidS;
-				if(pidS=="latestRid.txt")continue;
-				if(pidS=="END")break;
-				for(int i=pidS.length()-1;;i--){
-					if(pidS[i]=='.'){pidS.erase(i);break;}
-					pidS.erase(i);
-				}
-				//pidS.erase(pidS.length()-1);
-				pidL.push_back(pidS);
-			}
-			cloIn(); 
-			num=pidL.size();
-			for(int ord=0;ord<num;ord++){
-				sprintf(option,"copy /Y \"history\\%s\\%s.txt\" tmp.txt > nul ",_uid,pidL[ord].c_str());
-				system(option);
-				
-				string probName="",codeNameO="",codeNameN="",exName="";
-				char codeNameX[100],codeNameY[100];
-				int val[5];
-				freopen("tmp.txt","r",stdin);
-				getline(cin,probName);getline(cin,codeNameO);
-				for(int i=0;i<5;i++)scanf("%d",&val[i]);
-				cloIn();system("del tmp.txt");
-				
-				if(codeNameO[0]=='-')continue;
-				
-				codeNameN+=pidL[ord];
-				if(fileName[0])codeNameN+=" ",codeNameN+=probName;
-				if(fileName[1])codeNameN+=" ",codeNameN+=timCov(val[3]);
-				if(fileName[2])codeNameN+=" ",codeNameN+=numCov(val[4]);
-				
-				for(int i=codeNameO.length()-1;;i--){
-					exName+=codeNameO[i];
-					if(codeNameO[i]=='.')break;
-				}
-				for(int i=exName.length()-1;i>=0;i--)codeNameN+=exName[i];
-			
-				memset(codeNameX,0,sizeof codeNameX);
-				memset(codeNameY,0,sizeof codeNameY);
-				for(int i=0;i<codeNameO.length();i++)codeNameX[i]=codeNameO[i];
-				for(int i=0;i<codeNameN.length();i++)codeNameY[i]=codeNameN[i];
-				sprintf(option,"ren \"code\\%s\\%s\" \"%s\"",_uid,codeNameX,codeNameY);system(option);
-				
-				freopen("tmp.txt","w",stdout);
-				cout<<probName<<endl;
-				cout<<codeNameN<<endl;
-				for(int i=0;i<5;i++)printf("%d ",val[i]);
-				printf("\n");
-				for(int i=0;i<3;i++)printf("%d ",fileName[i]);
-				cloOut();
-				sprintf(option,"move /Y \"tmp.txt\" \"history\\%s\\%s.txt\" > nul ",_uid,pidL[ord].c_str());system(option);
-			}
-			topbar("ÌáÈ¡/¹ÜÀí´úÂë");
-			printf("ÖØÃüÃûÒÑÍê³É.\n");
-			printf("ÌâÄ¿ÅäÖÃÎÄ¼şÒÑÍ¬²½ĞŞ¸Ä.\n");
-			line();
-			printf("°´¼ü ËùÓĞ:·µ»Ø\n");
-			_getch();
-		}else return;
-	}
 	
 }
-
 void about(){
-	topbar("¹ØÓÚ");
-	printf("Luogu Submitting Crawler.exe\n");
-	printf("Èí¼ş°æ±¾:%s\n",version.c_str());
-	printf("·¢²¼ÈÕÆÚ:%s\n",date.c_str());
-	printf("Ê¹ÓÃDev-C++ 5.9.2±àĞ´,TDM-GCC 4.8.1 64-bit Release±àÒë\n");
-	printf("Copyright:2023-2025 Journals Junction Hybrid ±£ÁôËùÓĞÈ¨Àû\n"); 
-	line();
-	printf("¸ù¾İGPLv3,ÊÚÈ¨Ïà¹ØÓÃ»§ÔÚÆä¼ÆËã»úÉÏÊ¹ÓÃ´ËÈí¼ş\n");
-	printf("WindowsÓÃ»§Ãû³Æ: %s\n¼ÆËã»úÃû³Æ: %s\n",cmptUser,cmptName);
-	line(); 
-	printf("°´¼ü ËùÓĞ:·µ»ØÊ×Ò³\n");
-	choose=_getch()-'0';
-	return; 
-}
-int getFileS(const char *fileName) {
-	struct stat st;
-	if (!stat(fileName, &st))return st.st_size;
-	return 0;
-}
-void errlogView(){
+	topbar("å…³äº");
+	prt("è¯·ç¨å...");
+	ifstream fin;ofstream fout;
+	if(latestVer.empty()){
+		fin.open("update.txt",ios::in);
+		if(!fin.is_open())latestVer="Fail";
+		else fin>>latestVer,fin.close();
+	}
 	while(true){
-		topbar("´íÎóÈÕÖ¾");
-		printf("ÒÑ×ªĞ´µÄ´íÎóÈÕÖ¾³¤¶È: %d\n",getFileS("errlog.txt"));
-		printf("ÕıÔÚ¸üĞÂµÄ´íÎóÈÕÖ¾³¤¶È: %d\n",getFileS("errnew.txt"));
-		line();
-		printf("°´¼ü 1:´òÓ¡´íÎóÈÕÖ¾\n");
-		printf("°´¼ü 2:É¾³ıÒÑ×ªĞ´µÄ´íÎóÈÕÖ¾\n");
-		printf("°´¼ü ÆäËû:·µ»Ø\n");
-		choose=_getch()-'0';
-		if(choose==1){
-			topbar("´íÎóÈÕÖ¾");
-			printf("ÒÑ×ªĞ´µÄ´íÎóÈÕÖ¾\n");line();system("type errlog.txt 2>nul");
-			printf("\n");line();printf("ÕıÔÚ¸üĞÂµÄ´íÎóÈÕÖ¾\n");line();system("type errnew.txt 2>nul");
-			printf("\n");line();
-			printf("°´¼ü ËùÓĞ:·µ»Ø\n");
-			_getch();
-		}else if(choose==2){
-			topbar("´íÎóÈÕÖ¾");
-			system("del errlog.txt > nul 2>nul");
-			system("del errnew.txt > nul 2>nul");
-			printf("²Ù×÷ÒÑÍê³É.\n");
-			line();
-			printf("°´¼ü ËùÓĞ:·µ»Ø\n");
-			_getch(); 
+		topbar("å…³äº");
+		prt("Luogu Submitting Crawler.exe\n");
+		prt("è½¯ä»¶ç‰ˆæœ¬:%s (%s)\n",_VERSION.c_str(),_DATE.c_str());
+		prt("ä½¿ç”¨Embarcadero Dev-C++ 6.3ç¼–å†™,TDM-GCC 9.2.0 64-bit Releaseç¼–è¯‘\n");
+		prt("Copyright:2023-2025 Journals Junction Hybrid ä¿ç•™æ‰€æœ‰æƒåˆ©\n");line;
+		prt("æ ¹æ®GNU Public License 3,æˆæƒç›¸å…³ç”¨æˆ·åœ¨å…¶è®¡ç®—æœºä¸Šä½¿ç”¨æ­¤è½¯ä»¶\n");
+		prt("ç”¨æˆ·: %s\nè®¡ç®—æœº: %s\n",acName.c_str(),pcName.c_str());line;
+		prt("https://github.com/QianCheng-China/LuoguSubmittingCrawler/releases\n");
+		if(latestVer=="Fail")prt("æ›´æ–°æ£€æŸ¥å¤±è´¥.è¯·å‰å¾€GitHubæ‰‹åŠ¨æ£€æŸ¥æ›´æ–°.\n");
+		else if(latestVer==_VERSION)prt("ä½ ä½¿ç”¨çš„Luogu Submitting Crawleræ˜¯æœ€æ–°ç‰ˆæœ¬.\n");
+		else prt("Luogu Submitting Crawleræœ‰æ›´æ–°ç‰ˆæœ¬%s,å¯å‰å¾€GitHubä¸‹è½½.\n",latestVer.c_str());
+		line;
+		if(latestVer=="Fail")prt("æŒ‰é”® 1:é‡æ–°æ£€æŸ¥æ›´æ–°\n"),prt("æŒ‰é”® å…¶ä»–:è¿”å›é¦–é¡µ\n");
+		else prt("æŒ‰é”® æ‰€æœ‰:è¿”å›é¦–é¡µ\n");choice=chos;
+		if(choice==1&&latestVer=="Fail"){
+			topbar("å…³äº");
+			prt("å·²è°ƒèµ·æ›´æ–°æ£€æŸ¥ç¨‹åº,è¯·ç­‰å¾…5ç§’...\n");
+			WinExec("updateChecker",SW_HIDE);
+			Sleep(5000);fin.open("update.txt",ios::in);
+			if(!fin.is_open())latestVer="Fail";
+			else fin>>latestVer,fin.close();
 		}else break;		
 	}
 
-} 
+	return; 
+}
 void revert(){
-	topbar("»¹Ô­");
-	printf("»¹Ô­Luogu Submitting Crawle.\n");
-	printf("Õâ½«ÖØÖÃÄãµÄCookie,ÉèÖÃµÈÊı¾İ.\n");
-	printf("´íÎóÈÕÖ¾½«²»ÊÜÓ°Ïì.\n");
-	line();
-	printf("°´¼ü 1:»¹Ô­\n");
-	printf("°´¼ü ÆäËû:ÍË³ö\n"); 
-	choose=_getch()-'0';
-	if(choose==1){
-		topbar("»¹Ô­");
+	topbar("è¿˜åŸ");
+	prt("å¦‚æœä½ ç¡®è®¤Luogu Submitting Crawleré‡åˆ°äº†è¾ƒå¤§é”™è¯¯,è¯·è¿˜åŸ.\n");
+	prt("è¿™å°†åˆ é™¤é™¤é”™è¯¯æ—¥å¿—å¤–çš„æ‰€æœ‰ç”¨æˆ·æ•°æ®,è¯·è°¨æ…æ“ä½œ.\n");
+	line;prt("æŒ‰é”® 1:è¿˜åŸ\n");prt("æŒ‰é”® å…¶ä»–:é€€å‡º\n"); 
+	choice=chos;
+	if(choice==1){
+		topbar("è¿˜åŸ");prt("è¯·ç¨å,æ­£åœ¨æ‰§è¡Œæ“ä½œ...\n");
 		system("del cookie.txt > nul 2>nul");
 		system("del setting.txt > nul 2>nul");
-		system("rd /s /q history > nul 2>nul");
+		system("del sysinfo.txt > nul 2>nul");
+		system("del tmp.txt > nul 2>nul");
+		system("rd /s /q record > nul 2>nul");
 		system("rd /s /q code > nul 2>nul");
-		printf("²Ù×÷ÒÑÍê³É.\n");
-		line();
-		printf("°´¼ü ËùÓĞ:·µ»Ø\n"); 
-		_getch();		
+		system("rd /s /q problem > nul 2>nul"); 
+		topbar("è¿˜åŸ");prt("æ“ä½œå·²å®Œæˆ.\n");line;
+		prt("æŒ‰é”® æ‰€æœ‰:è¿”å›\n");chos;	
 	}
 }
-void homepage(){
+void mainMenu(){
 	topbar(" ");
-	printf("°´¼ü 1:¿ªÊ¼ÅÀÈ¡Accepted´úÂë\n");
-	printf("°´¼ü 2:¹ÜÀí/ÌáÈ¡ÒÑÅÀÈ¡µÄAccepted´úÂë\n");
-	printf("°´¼ü 3:¹ÜÀíµÇÂ¼Cookie\n");
-	printf("°´¼ü 4:Ñ¡Ïî\n");
-	printf("°´¼ü 5:¹ØÓÚ\n"); 
-	printf("°´¼ü ÆäËû:ÍË³ö³ÌĞò\n");
-	choose=_getch()-'0';
-	if(choose==1){if(!getCode())getCodeFinal();}
-	else if(choose==2)extract();
-	else if(choose==3)manageCookie();
-	else if(choose==4)setting();
-	else if(choose==5)about();
-	else if(choose==-43)errlogView();
-	else if(choose==-30)revert();
+	prt("æŒ‰é”® 1:å¼€å§‹çˆ¬å–\n");
+	prt("æŒ‰é”® 2:ç®¡ç†,æå–æœ¬åœ°ä»£ç \n");
+	prt("æŒ‰é”® 3:ç®¡ç†Cookie\n");
+	prt("æŒ‰é”® 4:é€‰é¡¹å’Œè®¾ç½®\n");
+	prt("æŒ‰é”® 5:å…³äº\n");
+	prt("æŒ‰é”® å…¶ä»–:é€€å‡º\n");
+	choice=chos;
+	if(choice==1)manageCrawler();
+	else if(choice==2)manageCode();
+	else if(choice==3)manageCookie();
+	else if(choice==4)setting();
+	else if(choice==5)about();
 	else exit(0);
-} 
-void init(){	
-	sprintf(option,"title Luogu Submitting Crawler %s",version.c_str());system(option);
-	system("chcp 936 > nul ");SetConsoleOutputCP(936);
-	printf("Luogu Submitting Crawler ÕıÔÚÆô¶¯\n");line();
-	printf("ÕıÔÚ×ªĞ´ÈÕÖ¾ÎÄ¼ş...\n");
-	system("type errnew.txt>>errlog.txt 2>nul"); 
-	freopen("errnew.txt","w",stderr);
-	printf("ÕıÔÚ¶ÁÈ¡±ØÒªÊı¾İ...\n");
+}
+void loadIn(){
 	
-	DWORD MAX_LEN=MAX_SYSINFO+1;
-	DWORD computername_len=MAX_COMPUTERNAME_LENGTH+1;
-    
-   	GetUserName(cmptUser,&MAX_LEN);
-    GetComputerName(cmptName,&computername_len); 
+	sprt(option,"title Luogu Submitting Crawler %s",_VERSION.c_str());sys(option);//title
+	sys("chcp 65001 > nul");SetConsoleOutputCP(65001);//language display config
+	prt("Luogu Submitting Crawler 2æ­£åœ¨å¯åŠ¨\n");line;
+	prt("æ­£åœ¨è°ƒèµ·æ›´æ–°æ£€æŸ¥ç¨‹åº...\n");
+	WinExec("updateChecker",SW_HIDE);
 	
-	string sub_key="SOFTWARE\\Microsoft\\Cryptography",name="MachineGuid";
-    HKEY hKey;
-    DWORD dwType=REG_SZ;DWORD dwLen=MAX_PATH;
-    RegOpenKeyA(HKEY_LOCAL_MACHINE,sub_key.c_str(),&hKey);
-	RegQueryValueExA(hKey,name.c_str(),0,&dwType,(LPBYTE)GID,&dwLen);
-   	system("wmic csproduct get UUID |find /I \"-\" > tmp.txt");
-    system("PowerShell -Command \"&{Get-Culture}\" >> tmp.txt"); 
-    freopen("tmp.txt","r",stdin);cin>>UID;
-    for(int i=1;i<=4;i++)getline(cin,localID);
-	cin>>localID>>localName;
-	cloIn();system("del tmp.txt > nul ");
-	findSetting();
-	printf("ÕıÔÚ¶ÁÈ¡ºÍÑéÖ¤±£´æÔÚ¼ÆËã»úÉÏµÄCookie...\n");findCookie();
+	prt("æ­£åœ¨è¯»å–ç³»ç»Ÿä¿¡æ¯...\n");
+	latestVer="";
+	system("sysGetor");
+	
+	ifstream fin;ofstream fout;
+	fin.open("sysinfo.txt",ios::in);
+	if(fin.is_open()){
+		getline(fin,guid);getline(fin,uuid);getline(fin,pcName);getline(fin,acName);
+		getline(fin,loCode);getline(fin,loNum);getline(fin,naCode);fin.close();
+	}else guid=uuid=pcName=acName=loCode=loNum=naCode="N/A";
+	
+	prt("æ­£åœ¨è¯»å–è®¾ç½®é…ç½®æ–‡ä»¶...\n");//read setting config file
+	
+	fin.open("setting.txt",ios::in);
+	if(optRes=fin.is_open()){
+		for(int i=1;i<=4;++i)fin>>saveOrder[i];
+		for(int i=1;i<=3;++i)fin>>fileName[i];
+		fin>>saveAll>>delayTime>>timeLimit;
+		fin.close();
+	}
+	if((!optRes)||(!timeLimit)){
+		for(int i=1;i<=4;i++)saveOrder[i]=i;
+		for(int i=1;i<=3;i++)fileName[i]=0;
+		saveAll=0;delayTime=500;timeLimit=5;
+		saveSetting();
+	}
+	
+	sprt(curlHead,"curl --connect-timeout %d",timeLimit);
+	
+	prt("æ­£åœ¨è¯»å–å’ŒéªŒè¯Cookieé…ç½®æ–‡ä»¶...\n");//read cookie config file
+	fin.open("cookie.txt",ios::in);
+	if(optRes=fin.is_open()){
+		fin>>_uid>>__client_id;fin.close();cookieCoder(1);
+		sprt(cookie,"--cookie \"_uid=%s;__client_id=%s\"",_uid.c_str(),__client_id.c_str());
+		if(!checkCookie())optRes=0;
+	}
+	if(optRes)loginAble=1,readAble=1;
+	else loginAble=0,readAble=0;
+	
 }
 int main(){
-	init();
-	while(1)homepage();
+	freopen("log.txt","a",stderr);
+	loadIn();while(true)mainMenu();
 	return 0;
 }
