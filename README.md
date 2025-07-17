@@ -2,9 +2,14 @@
 ### by Journals Junction Hybrid
 截至目前，Luogu并未开放打包下载在其上Accepted的题目代码的功能，这为许多OIer带来了不便。但Luogu Submitting Crawler可以全自动提取所有Accepted的题目，找到最优代码并保存到本地。Luogu Submitting Crawler拥有基于命令行的UI。以下是一些注意事项。
 ## 最新版本
-Luogu Submitting Crawler的最新版本为1.1.2。
+Luogu Submitting Crawler的最新版本为2.0.0。
+
+**注意：Luogu Submitting Crawler 1.x.x的生命周期已终止**
+
 ## 兼容性
 Luogu Submitting Crawler仅提供Windows系统，要求curl和tar功能。
+
+**从2.0.0开始，Luogu Submitting Crawler无需tar组件。**
 
 你可以在终端中键入curl和tar来查看是否拥有这两个组件。
 ## 所需数据
@@ -28,8 +33,13 @@ Luogu Submitting Crawler无需安装。请在解压后将整个文件夹移入�
 ## 错误修复程序
 从1.1.2开始，Luogu Submitting Crawler内置了错误修复程序。在首页，你可以按Ctrl+E查看错误日志，或按Ctrl+R执行还原操作。
 
+## 更新检查程序
+从2.0.0开始，Luogu Submitting Crawler内置了更新检查功能已便检查是否有新的更新。
+
+
 ## 许可证和条件
 Luogu Submitting Crawler是开源自由软件，遵循GPLv3许可证。
+
 
 本软件属于网络爬虫范畴，请在使用时注意遵守有关规则。
 
