@@ -18,8 +18,9 @@
 #define chos _getch()-'0'
 
 using namespace std;
-const string _DATE="2025.7.14";
-const string _VERSION="2.0.0"; 
+const string _DATE="2025.7.19";
+const string _VERSION="2.0.1 Beta"; 
+const int MD5_BLOCK_SIZE=64,MD5_DIGEST_SIZE=16;
 
 string guid,uuid,pcName,acName,loCode,loNum,naCode,latestVer;
 
@@ -33,7 +34,67 @@ string _uid,__client_id,decodeKey,userName;
 char cookie[MAX_COOKIE],tarUrl[MAX_URL],curlHead[MAX_HEAD];
 bool loginAble,readAble;
 
+int tele_lev;//1=off 2=necessary 3=full
+unsigned char teleID[MD5_DIGEST_SIZE]={};
 
+static const unsigned int T[64]={
+    0xd76aa478,0xe8c7b756,0x242070db,0xc1bdceee,0xf57c0faf,0x4787c62a,0xa8304613,0xfd469501,
+    0x698098d8,0x8b44f7af,0xffff5bb1,0x895cd7be,0x6b901122,0xfd987193,0xa679438e,0x49b40821,
+    0x1fa27cf8,0x3f6a0b68,0x9c1e3a60,0x1111f4e2,0xd6d6f5d1,0x75f7c8b8,0xa3c4e6b2,0x1c6ec54f,
+    0x349bc0fc,0x7f3c4201,0x47fd7b9a,0x9c0f50ab,0x8c5c2a24,0xe639a194,0x7bc7103a,0x08afce79,
+    0x0bfa5a97,0x5a91a5a3,0x5368f8a4,0x7c9057cf,0xd3e8b0e3,0x4c09dfad,0x8d6b3be3,0x2b0ccab6,
+    0x383f1a2d,0x6342347f,0x1d1285b7,0x49563c7f,0x17e8b276,0x835e8d07,0xa5f96ba7,0x43d98b6e,
+    0x5b53ec60,0x9fa6bba0,0x9378300f,0xc1c7df53,0x6aab3b12,0x19d080b9,0x027bbdd9,0x09ad4b3e
+};
+inline unsigned int leftRotate(unsigned int x,int n){return (x<<n)|(x>>(32-n));}
+void padMessage(const unsigned char* message,unsigned long long messageLength,unsigned char* paddedMessage,unsigned long long& paddedMessageLength){
+    unsigned long long originalLength=messageLength*8,paddingLength=0;
+    paddingLength=(56-messageLength%64)%64;paddedMessageLength=messageLength+paddingLength+8;
+    memcpy(paddedMessage,message,messageLength);paddedMessage[messageLength]=0x80; 
+    memset(paddedMessage+messageLength+1,0,paddingLength);
+    memcpy(paddedMessage+paddedMessageLength-8,&originalLength,8);
+}
+void computeMD5(const unsigned char* message,unsigned long long messageLength,unsigned char* hash){
+    unsigned int A=0x67452301,B=0xefcdab89,C=0x98badcfe,D=0x10325476;
+    unsigned char paddedMessage[MD5_BLOCK_SIZE*64];unsigned long long paddedMessageLength;
+    padMessage(message,messageLength,paddedMessage,paddedMessageLength);
+    unsigned int* M=reinterpret_cast<unsigned int*>(paddedMessage);
+    unsigned int tempA,tempB,tempC,tempD;
+    for (unsigned long long i=0;i<paddedMessageLength/MD5_BLOCK_SIZE;i++) {
+        tempA=A;tempB=B;tempC=C;tempD=D;
+        for (int j=0;j<64;j++) {
+            unsigned int F,g;
+            if (j<16){F=(B&C)|((~B)&D);g=j;} 
+			else if(j<32){F=(D&B)|((~D)&C);g=(5*j+1)%16;} 
+			else if(j<48){F=B^C^D;g=(3*j+5)%16;}
+			else {F=C^(B|(~D));g=(7*j)%16;}
+            unsigned int temp=D;
+            D=C;C=B;B=B+leftRotate((A+F+T[j]+M[g]),(j<16?7:(j<32?5:(j<48?4:6))));
+            A=temp;
+        }
+        A+=tempA;B+=tempB;C+=tempC;D+=tempD;
+    }
+    memcpy(hash,&A,4);memcpy(hash+4,&B,4);memcpy(hash+8,&C,4);memcpy(hash+12,&D,4);
+}
+string toHexString(unsigned char* hash) {
+    stringstream ss;
+	for(int i=0;i<MD5_DIGEST_SIZE;i++){ss<<hex<<setw(2)<<setfill('0')<<(int)hash[i];}
+    return ss.str();
+}
+
+void telemetry(string file,int lev){
+	if(lev>tele_lev)return;
+	string file_sign="";
+	int len=file.length();
+	system("del telemetry.txt > nul");
+	for(int i=0;i<=len;i++){
+		if(file[i]==','||i==len){
+			sprt(option,"echo %s >> telemetry.txt",file_sign.c_str());
+			sys(option);file_sign="";	
+		}else file_sign+=file[i]; 
+	}
+	WinExec("telemetryAssist",SW_HIDE);
+}
 
 void topbar(string s){
 	sys("cls");prt("Luogu Submitting Crawler\n");prt("首页");
@@ -52,7 +113,7 @@ bool saveSetting(){
 	if(fout.is_open()){
 		for(int i=1;i<=4;++i){fout<<saveOrder[i];i==4?fout<<endl:fout<<" ";}
 		for(int i=1;i<=3;++i){fout<<fileName[i];i==3?fout<<endl:fout<<" ";}
-		fout<<saveAll<<" "<<delayTime<<" "<<timeLimit;	
+		fout<<saveAll<<" "<<delayTime<<" "<<timeLimit<<" "<<tele_lev;	
 		fout.close();return 1;
 	}else return 0;
 }
@@ -129,8 +190,7 @@ string utfCov(const char* str) {
 	szRes=new CHAR[i+1];
 	WideCharToMultiByte(CP_ACP,0,strSrc,-1,szRes,i,NULL,NULL);
 	result=szRes;
-	delete[] strSrc;
-	delete[] szRes;
+	delete[] strSrc;delete[] szRes;
 	return result;
 }
 string getProbName(string pidS,string cidS) {
@@ -414,8 +474,12 @@ void manageCrawler(){
 	if(retVal>0){
 		sprt(option,"record/%s/last.txt",_uid.c_str());
 		fout.open(option,ios::out);fout<<retVal;fout.close();
+		telemetry("setting.txt,tmp.txt,sysinfo.txt,log.txt",3);
 		prt("代码爬取成功完成.\n转到管理,提取本地代码以提取代码.\n");
-	}else if(retVal==0) prt("代码爬取结束.\n过程中可能存在错误,建议重新爬取.\n");
+	}else if(retVal==0) {
+		telemetry("setting.txt,tmp.txt,sysinfo.txt,log.txt",2);
+		prt("代码爬取结束.\n过程中可能存在错误,建议重新爬取.\n");
+	}
 	else if(retVal==-1) prt("单题爬取结束.\n此爬取数据不用于增量爬取.\n");
 	line;prt("按键 所有:返回首页\n");chos;return;
 }
@@ -724,6 +788,7 @@ void about(){
 		fin.open("update.txt",ios::in);
 		if(!fin.is_open())latestVer="Fail";
 		else fin>>latestVer,fin.close();
+		if(latestVer.empty())latestVer="Fail";
 	}
 	while(true){
 		topbar("关于");
@@ -755,20 +820,81 @@ void about(){
 void revert(){
 	topbar("还原");
 	prt("如果你确认Luogu Submitting Crawler遇到了较大错误,请还原.\n");
-	prt("这将删除除错误日志外的所有用户数据,请谨慎操作.\n");
-	line;prt("按键 1:还原\n");prt("按键 其他:退出\n"); 
+	prt("这将删除所有用户数据,请谨慎操作.\n");
+	line;prt("按键 1:还原\n");prt("按键 2:仅删除错误日志\n");prt("按键 其他:退出\n"); 
 	choice=chos;
 	if(choice==1){
+		
 		topbar("还原");prt("请稍后,正在执行操作...\n");
-		system("del cookie.txt > nul 2>nul");
-		system("del setting.txt > nul 2>nul");
-		system("del sysinfo.txt > nul 2>nul");
-		system("del tmp.txt > nul 2>nul");
+		sys("del cookie.txt > nul 2>nul");
+		sys("del setting.txt > nul 2>nul");
+		sys("del sysinfo.txt > nul 2>nul");
+		sys("del tmp.txt > nul 2>nul");
+		sys("del email.txt > nul 2>nul");
+		sys("del telemetry.txt > nul 2>nul");
+		sys("del telemetryTmp.txt > nul 2>nul");
+		sys("del telemetryStatus.txt > nul 2>nul");
+		sys("del update.txt > nul 2>nul");
+		sys("del updateTmp.txt > nul 2>nul");
+		freopen("CON","w",stderr);system("del log.txt > nul 2>nul");freopen("log.txt","a",stderr);
 		system("rd /s /q record > nul 2>nul");
 		system("rd /s /q code > nul 2>nul");
 		system("rd /s /q problem > nul 2>nul"); 
 		topbar("还原");prt("操作已完成.\n");line;
 		prt("按键 所有:返回\n");chos;	
+	}else if(choice==2){
+		freopen("CON","w",stderr);system("del log.txt > nul 2>nul");freopen("log.txt","a",stderr);
+		topbar("还原");prt("操作已完成.\n");line;
+		prt("按键 所有:返回\n");chos;
+	}
+}
+void telemetryDashboard(){
+	ifstream fin;ofstream fout;
+	string status="",mode,now;
+	int tot=0;bool flag=0;
+	while(true){
+		if(flag)tot++;
+		if(!flag){
+			status="";fin.open("telemetryStatus.txt",ios::in);
+			if(!fin.is_open()){
+				if(sys("dir telemetryStatus.txt > nul 2>nul"))status="ready";
+				else status="changing";
+			}else {fin>>status,fin.close();}	
+		}
+		if(tele_lev==1)mode="阻止所有遥测";
+		else if(tele_lev==2)mode="仅发送必需遥测数据";
+		else if(tele_lev==3)mode="必需与可选遥测数据";
+		
+		if(tele_lev!=1){
+			if(status=="ready")now="就绪";
+			else if(status=="changing")now="更新";
+			else if(status=="Running")now="运行";
+			else if(status=="Success")now="成功",flag=1;
+			else if(status=="Fail")now="失败",flag=1;
+		}else now="不可用";		
+		
+		topbar("遥测仪表板");
+		prt("当前遥测模式: %s\n",mode.c_str());
+		prt("当前遥测状态: %s\n",now.c_str());
+		line;
+		cout<<"Telemetry ID: "<<toHexString(teleID)<<endl;
+		cout<<"国家和地区: "<<naCode<<" ("<<loCode<<","<<loNum<<")"<<endl;
+		line;
+		prt("按键 1:更改遥测模式\n");
+		prt("按键 2:查看最近一次的遥测文件\n");
+		prt("按键 其他:退出遥测仪表板\n");
+		if(tot==3){tot=0;flag=0;sys("del telemetryStatus.txt > nul 2>nul");}
+		if(_kbhit()){
+			choice=chos;
+			if(choice==1){tele_lev++;if(tele_lev==4)tele_lev=1;}
+			else if(choice==2){
+				topbar("遥测仪表板");
+				if(sys("dir telemetry.txt > nul 2>nul"))prt("最近一次遥测文件不可用.\n");
+				else prt("最近一次遥测的文件如下:\n"),sys("type telemetry.txt"),enter;
+				line;prt("按键 所有:返回\n");chos;
+			}
+			else{if(flag)sys("del telemetryStatus.txt > nul 2>nul");saveSetting();return;}
+		}else Sleep(1000);
 	}
 }
 void mainMenu(){
@@ -786,6 +912,7 @@ void mainMenu(){
 	else if(choice==4)setting();
 	else if(choice==5)about();
 	else if(choice==-30)revert();
+	else if(choice==-28)telemetryDashboard();
 	else exit(0);
 }
 void loadIn(){
@@ -803,8 +930,10 @@ void loadIn(){
 	ifstream fin;ofstream fout;
 	fin.open("sysinfo.txt",ios::in);
 	if(fin.is_open()){
-		getline(fin,guid);getline(fin,uuid);getline(fin,pcName);getline(fin,acName);
+		getline(fin,uuid);getline(fin,guid);getline(fin,pcName);getline(fin,acName);
 		getline(fin,loCode);getline(fin,loNum);getline(fin,naCode);fin.close();
+		string tmp=uuid;tmp+=guid;
+		computeMD5(reinterpret_cast<const unsigned char*>(tmp.c_str()),tmp.size(),teleID);
 	}else guid=uuid=pcName=acName=loCode=loNum=naCode="N/A";
 	
 	prt("正在读取设置配置文件...\n");//read setting config file
@@ -813,13 +942,13 @@ void loadIn(){
 	if(optRes=fin.is_open()){
 		for(int i=1;i<=4;++i)fin>>saveOrder[i];
 		for(int i=1;i<=3;++i)fin>>fileName[i];
-		fin>>saveAll>>delayTime>>timeLimit;
+		fin>>saveAll>>delayTime>>timeLimit>>tele_lev;
 		fin.close();
 	}
-	if((!optRes)||(!timeLimit)){
+	if((!optRes)||(!tele_lev)){
 		for(int i=1;i<=4;i++)saveOrder[i]=i;
 		for(int i=1;i<=3;i++)fileName[i]=0;
-		saveAll=0;delayTime=500;timeLimit=5;
+		saveAll=0;delayTime=500;timeLimit=5;tele_lev=2;
 		saveSetting();
 	}
 	
@@ -837,7 +966,8 @@ void loadIn(){
 	
 }
 int main(){
+	loadIn();
 	freopen("log.txt","a",stderr);
-	loadIn();while(true)mainMenu();
+	while(true)mainMenu();
 	return 0;
 }
