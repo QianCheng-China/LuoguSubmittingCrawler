@@ -1,12 +1,10 @@
 /*
 This is an telemetry program for Luogu Submitting Crawler
-Telemetry Assist Version: Beta 1 Date: 2025/7/19
+Telemetry Assist Version: 1 Date: 2025/7/20
 */
 #include<bits/stdc++.h>
 #include<windows.h>
 #define MAX_OPTION 2000
-#define sprt sprintf
-#define sys system
 using namespace std;
 const int MD5_BLOCK_SIZE=64,MD5_DIGEST_SIZE=16;
 string uuid,guid,loCode,loNum,naCode,plat;
@@ -60,7 +58,12 @@ string toHexString(unsigned char* hash) {
 void Exit(bool ret){
 	bool res;
 	do{
-		if(ret)res=system("echo Success > telemetryStatus.txt");
+		if(ret){
+			res=system("chcp 65001 & echo %date% %time% > telemetryTime.txt");
+			sprintf(option,"echo %.2lf >> telemetryTime.txt",(double)clock()/CLOCKS_PER_SEC);
+			res|=system(option);
+			res|=system("echo Success > telemetryStatus.txt");
+		}
 		else res=system("echo Fail > telemetryStatus.txt");
 	}while(res);
 	exit(0);
@@ -116,23 +119,21 @@ void make_file(){
 		fout<<"Content-Type: text/plain; charset=\"utf-8\""<<endl;
 		fout<<"Content-Transfer-Encoding: base64"<<endl;
 		fout<<"Content-Disposition: attachment; filename=\""<<fileName<<"\""<<endl<<endl;fout.close();
-		sprt(option,"powershell -Command \"[Convert]::ToBase64String([IO.File]::ReadAllBytes('%s'))\" >> email.txt",fileName.c_str());
-		sys(option);
+		sprintf(option,"powershell -Command \"[Convert]::ToBase64String([IO.File]::ReadAllBytes('%s'))\" >> email.txt",fileName.c_str());
+		system(option);
 	}
 	fout.open("email.txt",ios::app);fout<<endl<<"--===BOUNDARY===--";fout.close();
 }
 void send(){
 	/*
-	code was removed
+	Code was removed.
 	*/
 	Exit(!res);
 }
 void start(){
 	bool res;
-	do{
-		res=system("echo Running > telemetryStatus.txt");	
-	}while(res);
-	
+	do{res=system("echo Running > telemetryStatus.txt");}while(res);
+	system("del telemetryTime > nul 2>nul");
 }
 int main(){
 	start();

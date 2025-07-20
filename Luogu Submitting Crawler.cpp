@@ -18,8 +18,8 @@
 #define chos _getch()-'0'
 
 using namespace std;
-const string _DATE="2025.7.19";
-const string _VERSION="2.0.1 Beta"; 
+const string _DATE="2025.7.20";
+const string _VERSION="2.0.1"; 
 const int MD5_BLOCK_SIZE=64,MD5_DIGEST_SIZE=16;
 
 string guid,uuid,pcName,acName,loCode,loNum,naCode,latestVer;
@@ -37,6 +37,7 @@ bool loginAble,readAble;
 int tele_lev;//1=off 2=necessary 3=full
 unsigned char teleID[MD5_DIGEST_SIZE]={};
 
+bool night_work;
 static const unsigned int T[64]={
     0xd76aa478,0xe8c7b756,0x242070db,0xc1bdceee,0xf57c0faf,0x4787c62a,0xa8304613,0xfd469501,
     0x698098d8,0x8b44f7af,0xffff5bb1,0x895cd7be,0x6b901122,0xfd987193,0xa679438e,0x49b40821,
@@ -93,11 +94,18 @@ void telemetry(string file,int lev){
 			sys(option);file_sign="";	
 		}else file_sign+=file[i]; 
 	}
-	WinExec("telemetryAssist",SW_HIDE);
+    ShellExecute(NULL,"open","telemetryAssist.exe",NULL,NULL,SW_HIDE);
 }
 
 void topbar(string s){
-	sys("cls");prt("Luogu Submitting Crawler\n");prt("首页");
+	sys("cls");prt("Luogu Submitting Crawler\n");
+	loginAble?prt(""):prt("🔑");
+	if(latestVer==_VERSION)prt("");
+	else if(latestVer=="Fail")prt("⚠");
+	else cout<<"🔄";
+	tele_lev>1?prt("🛜"):prt("");
+	if(loginAble&&latestVer==_VERSION&&tele_lev==1);
+	else prt("|");prt("首页");
 	if(s!=" ")prt("-"),cout<<s;enter;line;
 }
 
@@ -231,7 +239,7 @@ int crawler(){
 	if(!loginAble){
 		topbar("Cookie管理"); 
 		prt("没有可用的登录Cookie.\n");prt("请先键入一个可用的Cookie,然后程序才能爬取代码.\n");
-		line;prt("按键 所有:返回\n");chos;return 0;
+		line;prt("按键 所有:返回\n");chos;return -2;
 	}else{
 		topbar("代码爬取");prt("程序即将开始爬取代码,并基于设定的规则进行保存.\n");
 		prt("请在爬取过程中保持网络连接.\n");prt("若你想要停止爬取,请按esc键.\n");line;
@@ -282,6 +290,31 @@ int crawler(){
 		}else return -2;
 		
 	}
+	topbar("代码爬取");
+	prt("是否启用夜间计划爬取?\n");
+	prt("若启用,Luogu Submitting Crawler将于23:00开始执行爬取,以避开流量高峰.\n");
+	prt("启用后,请保持电脑开启,爬取完成后,Luogu Submitting Crawler会将电脑关机.\n");
+	prt("如果爬取时出现异常,则程序会暂停以便你第二天查看.此时,电脑不会关机.\n");
+	prt("如果在爬取时想取消此模式,请按下esc,然后重新开始爬取即可.\n");line;
+	prt("按键 1:启用\n按键 其他:关闭\n");choice=chos;
+	if(choice==1)night_work=1;else night_work=0;
+	if(night_work){
+		topbar("代码爬取");
+		prt("夜间计划爬取模式开启,23:00开始爬取.\n");
+		prt("若想立即开始并取消此模式,请按esc.\n");
+		while(true){
+			time_t current_time=time(0);
+    		tm *local_time=localtime(&current_time);
+	    	int hours=local_time->tm_hour;
+    		int minutes=local_time->tm_min;
+    		int seconds=local_time->tm_sec;
+			if(_kbhit()) {
+				choice=chos;
+				if(choice==27-'0'){night_work=0;break;}
+			}
+			if(hours==23&&minutes==0)break;
+		}
+	}
 	sys("cls");
 	sprt(option,"md \"record/%s\" > nul",_uid.c_str());sys(option);
 	sprt(option,"md \"code/%s\" > nul",_uid.c_str());sys(option);sys("md problem > nul");
@@ -294,6 +327,7 @@ int crawler(){
 		sprt(tarUrl,"\"https://www.luogu.com.cn/record/list?user=%s&status=12&page=%d&pid=%s\"",_uid.c_str(),page,tarPid.c_str());
 		sprt(option,"%s -s %s %s > tmp.txt",curlHead,tarUrl,cookie);sys(option);prt("正在爬取提交记录的第%d页\n",page); 
 		if(optRes=system(option)){
+			night_work=0;
 			do{
 				topbar("代码爬取");
 				prt("代码爬取因为某些原因停止.\n");
@@ -307,12 +341,12 @@ int crawler(){
 		
 		while(html[++pos]){
 			if(_kbhit()) {
-				choice=chos;
+				choice=chos;night_work=0;
 				if(choice==27-'0'){
 					topbar("代码爬取");
 					prt("代码爬取已被暂停.\n");prt("如果此时退出,则增量爬取将不可用.\n");
 					line;prt("按键 1:退出\n");prt("按键 其他:继续爬取\n");
-					choice=chos;if(choice==1)return 0;sys("cls");
+					choice=chos;if(choice==1)return -2;sys("cls");
 				}
 			}
 			matched=1;
@@ -431,6 +465,7 @@ int crawler(){
 				sprt(tarUrl,"\"https://www.luogu.com.cn/record/%d\"",rid);
 				sprt(option,"%s -s %s %s > tmp.txt",curlHead,tarUrl,cookie);sys(option);
 				if(optRes=system(option)){
+					night_work=0;
 					do{
 						topbar("代码爬取");
 						prt("代码爬取因为某些原因停止.\n");
@@ -474,14 +509,20 @@ void manageCrawler(){
 	if(retVal>0){
 		sprt(option,"record/%s/last.txt",_uid.c_str());
 		fout.open(option,ios::out);fout<<retVal;fout.close();
-		telemetry("setting.txt,tmp.txt,sysinfo.txt,log.txt",3);
+		telemetry("setting.txt,tmp.txt,logArchive.txt",3);
 		prt("代码爬取成功完成.\n转到管理,提取本地代码以提取代码.\n");
 	}else if(retVal==0) {
-		telemetry("setting.txt,tmp.txt,sysinfo.txt,log.txt",2);
+		telemetry("setting.txt,tmp.txt,logArchive.txt",2);
 		prt("代码爬取结束.\n过程中可能存在错误,建议重新爬取.\n");
 	}
 	else if(retVal==-1) prt("单题爬取结束.\n此爬取数据不用于增量爬取.\n");
-	line;prt("按键 所有:返回首页\n");chos;return;
+	
+	line;
+	if(night_work)sys("shutdown -s -t 60"),prt("按键 所有:取消关机(60秒)并返回首页\n");
+	else prt("按键 所有:返回首页\n");
+	chos;
+	if(night_work)sys("shudown -a");
+	return;
 }
 void manageCode(){
 	if(!loginAble){
@@ -836,6 +877,7 @@ void revert(){
 		sys("del telemetryStatus.txt > nul 2>nul");
 		sys("del update.txt > nul 2>nul");
 		sys("del updateTmp.txt > nul 2>nul");
+		sys("del logArchive.txt > nul 2>nul");
 		freopen("CON","w",stderr);system("del log.txt > nul 2>nul");freopen("log.txt","a",stderr);
 		system("rd /s /q record > nul 2>nul");
 		system("rd /s /q code > nul 2>nul");
@@ -850,8 +892,9 @@ void revert(){
 }
 void telemetryDashboard(){
 	ifstream fin;ofstream fout;
-	string status="",mode,now;
+	string status="",now;
 	int tot=0;bool flag=0;
+	string date,tim,tim_cos;
 	while(true){
 		if(flag)tot++;
 		if(!flag){
@@ -859,11 +902,8 @@ void telemetryDashboard(){
 			if(!fin.is_open()){
 				if(sys("dir telemetryStatus.txt > nul 2>nul"))status="ready";
 				else status="changing";
-			}else {fin>>status,fin.close();}	
+			}else {fin>>status;if(status=="Success")fin>>tim_cos;fin.close();}	
 		}
-		if(tele_lev==1)mode="阻止所有遥测";
-		else if(tele_lev==2)mode="仅发送必需遥测数据";
-		else if(tele_lev==3)mode="必需与可选遥测数据";
 		
 		if(tele_lev!=1){
 			if(status=="ready")now="就绪";
@@ -874,26 +914,46 @@ void telemetryDashboard(){
 		}else now="不可用";		
 		
 		topbar("遥测仪表板");
-		prt("当前遥测模式: %s\n",mode.c_str());
 		prt("当前遥测状态: %s\n",now.c_str());
+		prt("状态更新时间: ");sys("echo %time%");
+		
 		line;
-		cout<<"Telemetry ID: "<<toHexString(teleID)<<endl;
-		cout<<"国家和地区: "<<naCode<<" ("<<loCode<<","<<loNum<<")"<<endl;
-		line;
-		prt("按键 1:更改遥测模式\n");
-		prt("按键 2:查看最近一次的遥测文件\n");
+		prt("按键 1:进入遥测控制和信息面板\n");
 		prt("按键 其他:退出遥测仪表板\n");
 		if(tot==3){tot=0;flag=0;sys("del telemetryStatus.txt > nul 2>nul");}
 		if(_kbhit()){
 			choice=chos;
-			if(choice==1){tele_lev++;if(tele_lev==4)tele_lev=1;}
-			else if(choice==2){
-				topbar("遥测仪表板");
-				if(sys("dir telemetry.txt > nul 2>nul"))prt("最近一次遥测文件不可用.\n");
-				else prt("最近一次遥测的文件如下:\n"),sys("type telemetry.txt"),enter;
-				line;prt("按键 所有:返回\n");chos;
-			}
-			else{if(flag)sys("del telemetryStatus.txt > nul 2>nul");saveSetting();return;}
+			if(choice==1){
+				while(true){
+					topbar("遥测控制和信息面板");prt("当前遥测模式: ");
+					if(tele_lev==1)prt("阻止所有遥测\n");
+					else if(tele_lev==2)prt("仅发送必需遥测数据\n");
+					else if(tele_lev==3)prt("必需与可选遥测数据\n");
+					cout<<"Telemetry ID: "<<toHexString(teleID)<<endl;
+					cout<<"国家和地区: "<<naCode<<" ("<<loCode<<","<<loNum<<")"<<endl;line;
+					fin.open("telemetryTime.txt",ios::in);
+					if(!fin.is_open())prt("上次遥测日期: 不可用\n上次遥测耗时: 不可用\n");
+					else{
+						
+						fin>>date;date="";tim="";tim_cos="";
+						fin>>date>>tim>>tim_cos;
+						fin.close();
+						for(int i=tim.length()-1,j=1;j;i--){if(tim[i]=='.')j=0;tim[i]='\0';}
+						prt("上次遥测日期: %s %s\n",date.c_str(),tim.c_str());
+						prt("上次遥测耗时: %s秒\n",tim_cos.c_str());
+					}
+					line;
+					prt("上次遥测的文件: ");if(sys("dir telemetry.txt >nul 2>nul"))prt("不可用\n");
+					else enter,sys("type telemetry.txt"),enter,line;
+					
+					prt("按键 1:更改遥测模式\n");
+					prt("按键 其他:保存设置并退出遥测控制和信息面板\n");
+					choice=chos;
+					if(choice==1){tele_lev++;if(tele_lev==4)tele_lev=1;}
+					else break;
+				}
+				saveSetting();
+			}else{if(flag)sys("del telemetryStatus.txt > nul 2>nul");return;}
 		}else Sleep(1000);
 	}
 }
@@ -920,13 +980,15 @@ void loadIn(){
 	sprt(option,"title Luogu Submitting Crawler %s",_VERSION.c_str());sys(option);//title
 	sys("chcp 65001 > nul");SetConsoleOutputCP(65001);//language display config
 	prt("Luogu Submitting Crawler 2正在启动\n");line;
+	prt("正在转写日志文件...\n");
+	sys("type log.txt >> logArchive.txt 2>nul");
 	prt("正在调起更新检查程序...\n");
-	WinExec("updateChecker",SW_HIDE);
+	ShellExecute(NULL,"open","updateChecker.exe",NULL,NULL,SW_HIDE);
 	
 	prt("正在读取系统信息...\n");
 	latestVer="";
 	system("sysGetor");
-	
+	sys("del log.txt > nul 2>nul");
 	ifstream fin;ofstream fout;
 	fin.open("sysinfo.txt",ios::in);
 	if(fin.is_open()){
@@ -963,7 +1025,6 @@ void loadIn(){
 	}
 	if(optRes)loginAble=1,readAble=1;
 	else loginAble=0,readAble=0;
-	
 }
 int main(){
 	loadIn();
