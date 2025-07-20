@@ -4,7 +4,7 @@
 
 Luogu Submitting Crawler拥有基于命令行的UI。以下是一些注意事项。
 ## 最新版本
-Luogu Submitting Crawler的最新版本为2.0.0。
+Luogu Submitting Crawler的最新版本为2.0.1。
 
 **注意：Luogu Submitting Crawler 1.x.x的生命周期已终止。**
 
@@ -40,6 +40,12 @@ Luogu Submitting Crawler无需安装。请在解压后将整个文件夹移入�
 ## 更新检查程序
 从2.0.0开始，Luogu Submitting Crawler内置了更新检查功能以便检查是否有新的更新。
 
+## 遥测功能
+从2.0.1 Beta开始，Luogu Submitting Crawler内置了遥测组件。
+
+我们尊重您的隐私，不会发送您的Cookie，身份等敏感信息。
+
+遥测文档将于之后发布。
 
 ## 许可证和条件
 Luogu Submitting Crawler是开源自由软件，遵循GPLv3许可证。**本软件不提供任何担保。**
