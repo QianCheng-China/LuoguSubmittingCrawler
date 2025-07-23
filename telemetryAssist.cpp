@@ -1,6 +1,6 @@
 /*
 This is an telemetry program for Luogu Submitting Crawler
-Telemetry Assist Version: 1 Date: 2025/7/20
+Telemetry Assist Version: 1 Date: 2025/7/22
 */
 #include<bits/stdc++.h>
 #include<windows.h>
@@ -59,10 +59,11 @@ void Exit(bool ret){
 	bool res;
 	do{
 		if(ret){
-			res=system("chcp 65001 & echo %date% %time% > telemetryTime.txt");
+			time_t nowtime;time(&nowtime);tm* p=localtime(&nowtime);
+			sprintf(option,"echo %04d/%02d/%02d %02d:%02d:%02d > telemetryTime.txt",p->tm_year+1900,p->tm_mon+1,p->tm_mday,p->tm_hour,p->tm_min,p->tm_sec);
+			res=system(option);			
 			sprintf(option,"echo %.2lf >> telemetryTime.txt",(double)clock()/CLOCKS_PER_SEC);
-			res|=system(option);
-			res|=system("echo Success > telemetryStatus.txt");
+			res|=system(option);res|=system("echo Success > telemetryStatus.txt");
 		}
 		else res=system("echo Fail > telemetryStatus.txt");
 	}while(res);
@@ -125,10 +126,7 @@ void make_file(){
 	fout.open("email.txt",ios::app);fout<<endl<<"--===BOUNDARY===--";fout.close();
 }
 void send(){
-	/*
-	Code was removed.
-	*/
-	Exit(!res);
+	/*Code was removed*/
 }
 void start(){
 	bool res;

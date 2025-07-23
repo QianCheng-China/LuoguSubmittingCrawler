@@ -18,11 +18,11 @@
 #define chos _getch()-'0'
 
 using namespace std;
-const string _DATE="2025.7.20";
+const string _DATE="2025.7.22";
 const string _VERSION="2.0.1"; 
 const int MD5_BLOCK_SIZE=64,MD5_DIGEST_SIZE=16;
 
-string guid,uuid,pcName,acName,loCode,loNum,naCode,latestVer;
+string guid,uuid,pcName,acName,loCode,loNum,naCode,latestVer="loading";
 
 char option[MAX_OPTION];
 int optRes,choice;
@@ -99,11 +99,11 @@ void telemetry(string file,int lev){
 
 void topbar(string s){
 	sys("cls");prt("Luogu Submitting Crawler\n");
-	loginAble?prt(""):prt("🔑");
-	if(latestVer==_VERSION)prt("");
-	else if(latestVer=="Fail")prt("⚠");
-	else cout<<"🔄";
-	tele_lev>1?prt("🛜"):prt("");
+	loginAble?prt(""):prt("●");
+	if(latestVer==_VERSION||latestVer=="loading")prt("");
+	else if(latestVer=="Fail")prt("×");
+	else cout<<"▲";
+	tele_lev>1?prt("↗"):prt("");
 	if(loginAble&&latestVer==_VERSION&&tele_lev==1);
 	else prt("|");prt("首页");
 	if(s!=" ")prt("-"),cout<<s;enter;line;
@@ -770,7 +770,7 @@ void setting(){
 					else prt("按键 其他:返回上一级\n");
 					
 					choice=chos;
-					if(choice==1)saveAll=!saveAll,fileName[2]=1;
+					if(choice==1)saveAll=!saveAll,fileName[3]=1;
 					else if(choice==2){pos++;if(pos==5)pos=1;} 
 					else if(choice==3){if(pos>1)swap(saveOrder[pos],saveOrder[pos-1]),pos--;}
 					else if(choice==4){if(pos<4)swap(saveOrder[pos],saveOrder[pos+1]),pos++;}
@@ -788,7 +788,10 @@ void setting(){
 				prt("按键 其他:返回上一级\n");
 				choice=chos;
 				if(choice==1){pos++;if(pos==4)pos=1;}
-				else if(choice==2)fileName[pos]=!fileName[pos];
+				else if(choice==2){
+					fileName[pos]=!fileName[pos];
+					if(!fileName[3])saveAll=0;
+				}
 				else lev--,pos=1;
 			}else if(sub==3){
 				prt("调整网络请求的参数.\n");
@@ -825,7 +828,7 @@ void about(){
 	topbar("关于");
 	prt("请稍后...");
 	ifstream fin;ofstream fout;
-	if(latestVer.empty()){
+	if(latestVer=="loading"){
 		fin.open("update.txt",ios::in);
 		if(!fin.is_open())latestVer="Fail";
 		else fin>>latestVer,fin.close();
@@ -837,7 +840,7 @@ void about(){
 		prt("软件版本:%s (%s)\n",_VERSION.c_str(),_DATE.c_str());
 		prt("使用Embarcadero Dev-C++ 6.3编写,TDM-GCC 9.2.0 64-bit Release编译\n");
 		prt("Copyright:2023-2025 Journals Junction Hybrid 保留所有权利\n");line;
-		prt("根据GNU Public License 3,授权相关用户在其计算机上使用此软件\n");
+		prt("根据GNU General Public License 3,授权相关用户在其计算机上使用此软件\n");
 		prt("用户: %s\n计算机: %s\n",acName.c_str(),pcName.c_str());line;
 		prt("https://github.com/QianCheng-China/LuoguSubmittingCrawler/releases\n");
 		if(latestVer=="Fail")prt("更新检查失败.请前往GitHub手动检查更新.\n");
@@ -867,6 +870,7 @@ void revert(){
 	if(choice==1){
 		
 		topbar("还原");prt("请稍后,正在执行操作...\n");
+		freopen("CON","w",stderr);
 		sys("del cookie.txt > nul 2>nul");
 		sys("del setting.txt > nul 2>nul");
 		sys("del sysinfo.txt > nul 2>nul");
@@ -874,18 +878,21 @@ void revert(){
 		sys("del email.txt > nul 2>nul");
 		sys("del telemetry.txt > nul 2>nul");
 		sys("del telemetryTmp.txt > nul 2>nul");
+		sys("del telemetryTime.txt > nul 2>nul");
 		sys("del telemetryStatus.txt > nul 2>nul");
 		sys("del update.txt > nul 2>nul");
-		sys("del updateTmp.txt > nul 2>nul");
+		sys("del updateTmp.txt > nul ");
 		sys("del logArchive.txt > nul 2>nul");
-		freopen("CON","w",stderr);system("del log.txt > nul 2>nul");freopen("log.txt","a",stderr);
+		system("del log.txt > nul 2>nul");
 		system("rd /s /q record > nul 2>nul");
 		system("rd /s /q code > nul 2>nul");
 		system("rd /s /q problem > nul 2>nul"); 
+		freopen("log.txt","a",stderr);
 		topbar("还原");prt("操作已完成.\n");line;
 		prt("按键 所有:返回\n");chos;	
 	}else if(choice==2){
 		freopen("CON","w",stderr);system("del log.txt > nul 2>nul");freopen("log.txt","a",stderr);
+		sys("del logArchive.txt > nul 2>nul");
 		topbar("还原");prt("操作已完成.\n");line;
 		prt("按键 所有:返回\n");chos;
 	}
@@ -894,7 +901,7 @@ void telemetryDashboard(){
 	ifstream fin;ofstream fout;
 	string status="",now;
 	int tot=0;bool flag=0;
-	string date,tim,tim_cos;
+	string date,tim_cos;
 	while(true){
 		if(flag)tot++;
 		if(!flag){
@@ -934,17 +941,15 @@ void telemetryDashboard(){
 					fin.open("telemetryTime.txt",ios::in);
 					if(!fin.is_open())prt("上次遥测日期: 不可用\n上次遥测耗时: 不可用\n");
 					else{
-						
-						fin>>date;date="";tim="";tim_cos="";
-						fin>>date>>tim>>tim_cos;
+						date="";tim_cos="";
+						getline(fin,date);getline(fin,tim_cos);
 						fin.close();
-						for(int i=tim.length()-1,j=1;j;i--){if(tim[i]=='.')j=0;tim[i]='\0';}
-						prt("上次遥测日期: %s %s\n",date.c_str(),tim.c_str());
+						prt("上次遥测日期: %s\n",date.c_str());
 						prt("上次遥测耗时: %s秒\n",tim_cos.c_str());
 					}
 					line;
 					prt("上次遥测的文件: ");if(sys("dir telemetry.txt >nul 2>nul"))prt("不可用\n");
-					else enter,sys("type telemetry.txt"),enter,line;
+					else enter,sys("type telemetry.txt"),enter;line;
 					
 					prt("按键 1:更改遥测模式\n");
 					prt("按键 其他:保存设置并退出遥测控制和信息面板\n");
@@ -964,6 +969,10 @@ void mainMenu(){
 	prt("按键 3:管理Cookie\n");
 	prt("按键 4:选项和设置\n");
 	prt("按键 5:关于\n");
+	line;
+	prt("按键 Ctrl+R:还原\n");
+	prt("按键 Ctrl+T:遥测仪表板\n");
+	line;
 	prt("按键 其他:退出\n");
 	choice=chos;
 	if(choice==1)manageCrawler();
@@ -979,14 +988,13 @@ void loadIn(){
 	
 	sprt(option,"title Luogu Submitting Crawler %s",_VERSION.c_str());sys(option);//title
 	sys("chcp 65001 > nul");SetConsoleOutputCP(65001);//language display config
-	prt("Luogu Submitting Crawler 2正在启动\n");line;
+	prt("Luogu Submitting Crawler 正在启动\n");line;
 	prt("正在转写日志文件...\n");
 	sys("type log.txt >> logArchive.txt 2>nul");
 	prt("正在调起更新检查程序...\n");
 	ShellExecute(NULL,"open","updateChecker.exe",NULL,NULL,SW_HIDE);
 	
 	prt("正在读取系统信息...\n");
-	latestVer="";
 	system("sysGetor");
 	sys("del log.txt > nul 2>nul");
 	ifstream fin;ofstream fout;

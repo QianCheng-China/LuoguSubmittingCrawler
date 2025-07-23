@@ -1,6 +1,6 @@
 /*
 This is a program to get system information for Luogu Submitting Crawler
-System Getor Version: 1 Date: 2025/7/17
+System Getor Version: 2 Date: 2025/7/22
 */
 #include<Windows.h>
 #include<windows.h>
@@ -56,17 +56,15 @@ void getName(){
 	char szBuffer[MAX_BUFFER_LEN];
 	DWORD dwNameLen;dwNameLen=MAX_BUFFER_LEN;dwNameLen=MAX_BUFFER_LEN;
 	if (!GetComputerName(szBuffer,&dwNameLen))printf("Error  %d\n", GetLastError());
-	else{
-		fout.open("sysinfo.txt",ios::app);
-		fout<<szBuffer<<endl;
-		fout.close();
-	}
-	if (!GetUserName(szBuffer, &dwNameLen))printf("Error  %d\n", GetLastError());
-	else{
-		fout.open("sysinfo.txt",ios::app);
-		fout<<szBuffer<<endl;
-		fout.close();
-	}
+	fout.open("sysinfo.txt",ios::app);
+	fout<<szBuffer<<endl;
+	fout.close();
+	
+	memset(szBuffer,0,sizeof szBuffer);
+	if (!GetUserName(szBuffer,&dwNameLen))printf("Error  %d\n", GetLastError());
+	fout.open("sysinfo.txt",ios::app);
+	fout<<szBuffer<<endl;
+	fout.close();
 }
 int _tmain(int argc,_TCHAR* argv[]){
 	freopen("log.txt","a",stdout);

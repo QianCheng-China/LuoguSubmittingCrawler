@@ -1,0 +1,617 @@
+<!doctype html>
+<html>
+<head>
+<meta charset='UTF-8'><meta name='viewport' content='width=device-width initial-scale=1'>
+
+<link href='https://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,700,400&subset=latin,latin-ext' rel='stylesheet' type='text/css' /><style type='text/css'>html {overflow-x: initial !important;}:root { --bg-color: #ffffff; --text-color: #333333; --select-text-bg-color: #B5D6FC; --select-text-font-color: auto; --monospace: "Lucida Console",Consolas,"Courier",monospace; --title-bar-height: 20px; }
+.mac-os-11 { --title-bar-height: 28px; }
+html { font-size: 14px; background-color: var(--bg-color); color: var(--text-color); font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+h1, h2, h3, h4, h5 { white-space: pre-wrap; }
+body { margin: 0px; padding: 0px; height: auto; inset: 0px; font-size: 1rem; line-height: 1.42857; overflow-x: hidden; background: inherit; }
+iframe { margin: auto; }
+a.url { word-break: break-all; }
+a:active, a:hover { outline: 0px; }
+.in-text-selection, ::selection { text-shadow: none; background: var(--select-text-bg-color); color: var(--select-text-font-color); }
+#write { margin: 0px auto; height: auto; width: inherit; word-break: normal; overflow-wrap: break-word; position: relative; white-space: normal; overflow-x: visible; padding-top: 36px; }
+#write.first-line-indent p { text-indent: 2em; }
+#write.first-line-indent li p, #write.first-line-indent p * { text-indent: 0px; }
+#write.first-line-indent li { margin-left: 2em; }
+.for-image #write { padding-left: 8px; padding-right: 8px; }
+body.typora-export { padding-left: 30px; padding-right: 30px; }
+.typora-export .footnote-line, .typora-export li, .typora-export p { white-space: pre-wrap; }
+.typora-export .task-list-item input { pointer-events: none; }
+@media screen and (max-width: 500px) {
+  body.typora-export { padding-left: 0px; padding-right: 0px; }
+  #write { padding-left: 20px; padding-right: 20px; }
+}
+#write li > figure:last-child { margin-bottom: 0.5rem; }
+#write ol, #write ul { position: relative; }
+img { max-width: 100%; vertical-align: middle; image-orientation: from-image; }
+button, input, select, textarea { color: inherit; font: inherit; }
+input[type="checkbox"], input[type="radio"] { line-height: normal; padding: 0px; }
+*, ::after, ::before { box-sizing: border-box; }
+#write h1, #write h2, #write h3, #write h4, #write h5, #write h6, #write p, #write pre { width: inherit; }
+#write h1, #write h2, #write h3, #write h4, #write h5, #write h6, #write p { position: relative; }
+p { line-height: inherit; }
+h1, h2, h3, h4, h5, h6 { break-after: avoid-page; break-inside: avoid; orphans: 4; }
+p { orphans: 4; }
+h1 { font-size: 2rem; }
+h2 { font-size: 1.8rem; }
+h3 { font-size: 1.6rem; }
+h4 { font-size: 1.4rem; }
+h5 { font-size: 1.2rem; }
+h6 { font-size: 1rem; }
+.md-math-block, .md-rawblock, h1, h2, h3, h4, h5, h6, p { margin-top: 1rem; margin-bottom: 1rem; }
+.hidden { display: none; }
+.md-blockmeta { color: rgb(204, 204, 204); font-weight: 700; font-style: italic; }
+a { cursor: pointer; }
+sup.md-footnote { padding: 2px 4px; background-color: rgba(238, 238, 238, 0.7); color: rgb(85, 85, 85); border-radius: 4px; cursor: pointer; }
+sup.md-footnote a, sup.md-footnote a:hover { color: inherit; text-transform: inherit; text-decoration: inherit; }
+#write input[type="checkbox"] { cursor: pointer; width: inherit; height: inherit; }
+figure { overflow-x: auto; margin: 1.2em 0px; max-width: calc(100% + 16px); padding: 0px; }
+figure > table { margin: 0px; }
+thead, tr { break-inside: avoid; break-after: auto; }
+thead { display: table-header-group; }
+table { border-collapse: collapse; border-spacing: 0px; width: 100%; overflow: auto; break-inside: auto; text-align: left; }
+table.md-table td { min-width: 32px; }
+.CodeMirror-gutters { border-right: 0px; background-color: inherit; }
+.CodeMirror-linenumber { user-select: none; }
+.CodeMirror { text-align: left; }
+.CodeMirror-placeholder { opacity: 0.3; }
+.CodeMirror pre { padding: 0px 4px; }
+.CodeMirror-lines { padding: 0px; }
+div.hr:focus { cursor: none; }
+#write pre { white-space: pre-wrap; }
+#write.fences-no-line-wrapping pre { white-space: pre; }
+#write pre.ty-contain-cm { white-space: normal; }
+.CodeMirror-gutters { margin-right: 4px; }
+.md-fences { font-size: 0.9rem; display: block; break-inside: avoid; text-align: left; overflow: visible; white-space: pre; background: inherit; position: relative !important; }
+.md-fences-adv-panel { width: 100%; margin-top: 10px; text-align: center; padding-top: 0px; padding-bottom: 8px; overflow-x: auto; }
+#write .md-fences.mock-cm { white-space: pre-wrap; }
+.md-fences.md-fences-with-lineno { padding-left: 0px; }
+#write.fences-no-line-wrapping .md-fences.mock-cm { white-space: pre; overflow-x: auto; }
+.md-fences.mock-cm.md-fences-with-lineno { padding-left: 8px; }
+.CodeMirror-line, twitterwidget { break-inside: avoid; }
+svg { break-inside: avoid; }
+.footnotes { opacity: 0.8; font-size: 0.9rem; margin-top: 1em; margin-bottom: 1em; }
+.footnotes + .footnotes { margin-top: 0px; }
+.md-reset { margin: 0px; padding: 0px; border: 0px; outline: 0px; vertical-align: top; background: 0px 0px; text-decoration: none; text-shadow: none; float: none; position: static; width: auto; height: auto; white-space: nowrap; cursor: inherit; -webkit-tap-highlight-color: transparent; line-height: normal; font-weight: 400; text-align: left; box-sizing: content-box; direction: ltr; }
+li div { padding-top: 0px; }
+blockquote { margin: 1rem 0px; }
+li .mathjax-block, li p { margin: 0.5rem 0px; }
+li blockquote { margin: 1rem 0px; }
+li { margin: 0px; position: relative; }
+blockquote > :last-child { margin-bottom: 0px; }
+blockquote > :first-child, li > :first-child { margin-top: 0px; }
+.footnotes-area { color: rgb(136, 136, 136); margin-top: 0.714rem; padding-bottom: 0.143rem; white-space: normal; }
+#write .footnote-line { white-space: pre-wrap; }
+@media print {
+  body, html { border: 1px solid transparent; height: 99%; break-after: avoid; break-before: avoid; font-variant-ligatures: no-common-ligatures; }
+  #write { margin-top: 0px; border-color: transparent !important; padding-top: 0px !important; padding-bottom: 0px !important; }
+  .typora-export * { -webkit-print-color-adjust: exact; }
+  .typora-export #write { break-after: avoid; }
+  .typora-export #write::after { height: 0px; }
+  .is-mac table { break-inside: avoid; }
+  #write > p:nth-child(1) { margin-top: 0px; }
+  .typora-export-show-outline .typora-export-sidebar { display: none; }
+  figure { overflow-x: visible; }
+}
+.footnote-line { margin-top: 0.714em; font-size: 0.7em; }
+a img, img a { cursor: pointer; }
+pre.md-meta-block { font-size: 0.8rem; min-height: 0.8rem; white-space: pre-wrap; background: rgb(204, 204, 204); display: block; overflow-x: hidden; }
+p > .md-image:only-child:not(.md-img-error) img, p > img:only-child { display: block; margin: auto; }
+#write.first-line-indent p > .md-image:only-child:not(.md-img-error) img { left: -2em; position: relative; }
+p > .md-image:only-child { display: inline-block; width: 100%; }
+#write .MathJax_Display { margin: 0.8em 0px 0px; }
+.md-math-block { width: 100%; }
+.md-math-block:not(:empty)::after { display: none; }
+.MathJax_ref { fill: currentcolor; }
+[contenteditable="true"]:active, [contenteditable="true"]:focus, [contenteditable="false"]:active, [contenteditable="false"]:focus { outline: 0px; box-shadow: none; }
+.md-task-list-item { position: relative; list-style-type: none; }
+.task-list-item.md-task-list-item { padding-left: 0px; }
+.md-task-list-item > input { position: absolute; top: 0px; left: 0px; margin-left: -1.2em; margin-top: calc(1em - 10px); border: none; }
+.math { font-size: 1rem; }
+.md-toc { min-height: 3.58rem; position: relative; font-size: 0.9rem; border-radius: 10px; }
+.md-toc-content { position: relative; margin-left: 0px; }
+.md-toc-content::after, .md-toc::after { display: none; }
+.md-toc-item { display: block; color: rgb(65, 131, 196); }
+.md-toc-item a { text-decoration: none; }
+.md-toc-inner:hover { text-decoration: underline; }
+.md-toc-inner { display: inline-block; cursor: pointer; }
+.md-toc-h1 .md-toc-inner { margin-left: 0px; font-weight: 700; }
+.md-toc-h2 .md-toc-inner { margin-left: 2em; }
+.md-toc-h3 .md-toc-inner { margin-left: 4em; }
+.md-toc-h4 .md-toc-inner { margin-left: 6em; }
+.md-toc-h5 .md-toc-inner { margin-left: 8em; }
+.md-toc-h6 .md-toc-inner { margin-left: 10em; }
+@media screen and (max-width: 48em) {
+  .md-toc-h3 .md-toc-inner { margin-left: 3.5em; }
+  .md-toc-h4 .md-toc-inner { margin-left: 5em; }
+  .md-toc-h5 .md-toc-inner { margin-left: 6.5em; }
+  .md-toc-h6 .md-toc-inner { margin-left: 8em; }
+}
+a.md-toc-inner { font-size: inherit; font-style: inherit; font-weight: inherit; line-height: inherit; }
+.footnote-line a:not(.reversefootnote) { color: inherit; }
+.reversefootnote { font-family: ui-monospace, sans-serif; }
+.md-attr { display: none; }
+.md-fn-count::after { content: "."; }
+code, pre, samp, tt { font-family: var(--monospace); }
+kbd { margin: 0px 0.1em; padding: 0.1em 0.6em; font-size: 0.8em; color: rgb(36, 39, 41); background: rgb(255, 255, 255); border: 1px solid rgb(173, 179, 185); border-radius: 3px; box-shadow: rgba(12, 13, 14, 0.2) 0px 1px 0px, rgb(255, 255, 255) 0px 0px 0px 2px inset; white-space: nowrap; vertical-align: middle; }
+.md-comment { color: rgb(162, 127, 3); opacity: 0.6; font-family: var(--monospace); }
+code { text-align: left; vertical-align: initial; }
+a.md-print-anchor { white-space: pre !important; border-width: initial !important; border-style: none !important; border-color: initial !important; display: inline-block !important; position: absolute !important; width: 1px !important; right: 0px !important; outline: 0px !important; background: 0px 0px !important; text-decoration: initial !important; text-shadow: initial !important; }
+.os-windows.monocolor-emoji .md-emoji { font-family: "Segoe UI Symbol", sans-serif; }
+.md-diagram-panel > svg { max-width: 100%; }
+[lang="flow"] svg, [lang="mermaid"] svg { max-width: 100%; height: auto; }
+[lang="mermaid"] .node text { font-size: 1rem; }
+table tr th { border-bottom: 0px; }
+video { max-width: 100%; display: block; margin: 0px auto; }
+iframe { max-width: 100%; width: 100%; border: none; }
+.highlight td, .highlight tr { border: 0px; }
+mark { background: rgb(255, 255, 0); color: rgb(0, 0, 0); }
+.md-html-inline .md-plain, .md-html-inline strong, mark .md-inline-math, mark strong { color: inherit; }
+.md-expand mark .md-meta { opacity: 0.3 !important; }
+mark .md-meta { color: rgb(0, 0, 0); }
+@media print {
+  .typora-export h1, .typora-export h2, .typora-export h3, .typora-export h4, .typora-export h5, .typora-export h6 { break-inside: avoid; }
+}
+.md-diagram-panel .messageText { stroke: none !important; }
+.md-diagram-panel .start-state { fill: var(--node-fill); }
+.md-diagram-panel .edgeLabel rect { opacity: 1 !important; }
+.md-fences.md-fences-math { font-size: 1em; }
+.md-fences-advanced:not(.md-focus) { padding: 0px; white-space: nowrap; border: 0px; }
+.md-fences-advanced:not(.md-focus) { background: inherit; }
+.typora-export-show-outline .typora-export-content { max-width: 1440px; margin: auto; display: flex; flex-direction: row; }
+.typora-export-sidebar { width: 300px; font-size: 0.8rem; margin-top: 80px; margin-right: 18px; }
+.typora-export-show-outline #write { --webkit-flex: 2; flex: 2 1 0%; }
+.typora-export-sidebar .outline-content { position: fixed; top: 0px; max-height: 100%; overflow: hidden auto; padding-bottom: 30px; padding-top: 60px; width: 300px; }
+@media screen and (max-width: 1024px) {
+  .typora-export-sidebar, .typora-export-sidebar .outline-content { width: 240px; }
+}
+@media screen and (max-width: 800px) {
+  .typora-export-sidebar { display: none; }
+}
+.outline-content li, .outline-content ul { margin-left: 0px; margin-right: 0px; padding-left: 0px; padding-right: 0px; list-style: none; overflow-wrap: anywhere; }
+.outline-content ul { margin-top: 0px; margin-bottom: 0px; }
+.outline-content strong { font-weight: 400; }
+.outline-expander { width: 1rem; height: 1.42857rem; position: relative; display: table-cell; vertical-align: middle; cursor: pointer; padding-left: 4px; }
+.outline-expander::before { content: ""; position: relative; font-family: Ionicons; display: inline-block; font-size: 8px; vertical-align: middle; }
+.outline-item { padding-top: 3px; padding-bottom: 3px; cursor: pointer; }
+.outline-expander:hover::before { content: ""; }
+.outline-h1 > .outline-item { padding-left: 0px; }
+.outline-h2 > .outline-item { padding-left: 1em; }
+.outline-h3 > .outline-item { padding-left: 2em; }
+.outline-h4 > .outline-item { padding-left: 3em; }
+.outline-h5 > .outline-item { padding-left: 4em; }
+.outline-h6 > .outline-item { padding-left: 5em; }
+.outline-label { cursor: pointer; display: table-cell; vertical-align: middle; text-decoration: none; color: inherit; }
+.outline-label:hover { text-decoration: underline; }
+.outline-item:hover { border-color: rgb(245, 245, 245); background-color: var(--item-hover-bg-color); }
+.outline-item:hover { margin-left: -28px; margin-right: -28px; border-left: 28px solid transparent; border-right: 28px solid transparent; }
+.outline-item-single .outline-expander::before, .outline-item-single .outline-expander:hover::before { display: none; }
+.outline-item-open > .outline-item > .outline-expander::before { content: ""; }
+.outline-children { display: none; }
+.info-panel-tab-wrapper { display: none; }
+.outline-item-open > .outline-children { display: block; }
+.typora-export .outline-item { padding-top: 1px; padding-bottom: 1px; }
+.typora-export .outline-item:hover { margin-right: -8px; border-right: 8px solid transparent; }
+.typora-export .outline-expander::before { content: "+"; font-family: inherit; top: -1px; }
+.typora-export .outline-expander:hover::before, .typora-export .outline-item-open > .outline-item > .outline-expander::before { content: "−"; }
+.typora-export-collapse-outline .outline-children { display: none; }
+.typora-export-collapse-outline .outline-item-open > .outline-children, .typora-export-no-collapse-outline .outline-children { display: block; }
+.typora-export-no-collapse-outline .outline-expander::before { content: "" !important; }
+.typora-export-show-outline .outline-item-active > .outline-item .outline-label { font-weight: 700; }
+.md-inline-math-container mjx-container { zoom: 0.95; }
+mjx-container { break-inside: avoid; }
+.md-alert.md-alert-note { border-left-color: rgb(9, 105, 218); }
+.md-alert.md-alert-important { border-left-color: rgb(130, 80, 223); }
+.md-alert.md-alert-warning { border-left-color: rgb(154, 103, 0); }
+.md-alert.md-alert-tip { border-left-color: rgb(31, 136, 61); }
+.md-alert.md-alert-caution { border-left-color: rgb(207, 34, 46); }
+.md-alert { padding: 0px 1em; margin-bottom: 16px; color: inherit; border-left: 0.25em solid rgb(0, 0, 0); }
+.md-alert-text-note { color: rgb(9, 105, 218); }
+.md-alert-text-important { color: rgb(130, 80, 223); }
+.md-alert-text-warning { color: rgb(154, 103, 0); }
+.md-alert-text-tip { color: rgb(31, 136, 61); }
+.md-alert-text-caution { color: rgb(207, 34, 46); }
+.md-alert-text { font-size: 0.9rem; font-weight: 700; }
+.md-alert-text svg { fill: currentcolor; position: relative; top: 0.125em; margin-right: 1ch; overflow: visible; }
+.md-alert-text-container::after { content: attr(data-text); text-transform: capitalize; pointer-events: none; margin-right: 1ch; }
+
+
+:root {
+    --side-bar-bg-color: #fafafa;
+    --control-text-color: #777;
+}
+
+@include-when-export url(https://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,700,400&subset=latin,latin-ext);
+
+/* open-sans-regular - latin-ext_latin */
+  /* open-sans-italic - latin-ext_latin */
+    /* open-sans-700 - latin-ext_latin */
+    /* open-sans-700italic - latin-ext_latin */
+  html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+}
+
+body {
+    font-family: "Open Sans","Clear Sans", "Helvetica Neue", Helvetica, Arial, 'Segoe UI Emoji', sans-serif;
+    color: rgb(51, 51, 51);
+    line-height: 1.6;
+}
+
+#write {
+    max-width: 860px;
+  	margin: 0 auto;
+  	padding: 30px;
+    padding-bottom: 100px;
+}
+
+@media only screen and (min-width: 1400px) {
+	#write {
+		max-width: 1024px;
+	}
+}
+
+@media only screen and (min-width: 1800px) {
+	#write {
+		max-width: 1200px;
+	}
+}
+
+#write > ul:first-child,
+#write > ol:first-child{
+    margin-top: 30px;
+}
+
+a {
+    color: #4183C4;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    position: relative;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    font-weight: bold;
+    line-height: 1.4;
+    cursor: text;
+}
+h1:hover a.anchor,
+h2:hover a.anchor,
+h3:hover a.anchor,
+h4:hover a.anchor,
+h5:hover a.anchor,
+h6:hover a.anchor {
+    text-decoration: none;
+}
+h1 tt,
+h1 code {
+    font-size: inherit;
+}
+h2 tt,
+h2 code {
+    font-size: inherit;
+}
+h3 tt,
+h3 code {
+    font-size: inherit;
+}
+h4 tt,
+h4 code {
+    font-size: inherit;
+}
+h5 tt,
+h5 code {
+    font-size: inherit;
+}
+h6 tt,
+h6 code {
+    font-size: inherit;
+}
+h1 {
+    font-size: 2.25em;
+    line-height: 1.2;
+    border-bottom: 1px solid #eee;
+}
+h2 {
+    font-size: 1.75em;
+    line-height: 1.225;
+    border-bottom: 1px solid #eee;
+}
+
+/*@media print {
+    .typora-export h1,
+    .typora-export h2 {
+        border-bottom: none;
+        padding-bottom: initial;
+    }
+
+    .typora-export h1::after,
+    .typora-export h2::after {
+        content: "";
+        display: block;
+        height: 100px;
+        margin-top: -96px;
+        border-top: 1px solid #eee;
+    }
+}*/
+
+h3 {
+    font-size: 1.5em;
+    line-height: 1.43;
+}
+h4 {
+    font-size: 1.25em;
+}
+h5 {
+    font-size: 1em;
+}
+h6 {
+   font-size: 1em;
+    color: #777;
+}
+p,
+blockquote,
+ul,
+ol,
+dl,
+table{
+    margin: 0.8em 0;
+}
+li>ol,
+li>ul {
+    margin: 0 0;
+}
+hr {
+    height: 2px;
+    padding: 0;
+    margin: 16px 0;
+    background-color: #e7e7e7;
+    border: 0 none;
+    overflow: hidden;
+    box-sizing: content-box;
+}
+
+li p.first {
+    display: inline-block;
+}
+ul,
+ol {
+    padding-left: 30px;
+}
+ul:first-child,
+ol:first-child {
+    margin-top: 0;
+}
+ul:last-child,
+ol:last-child {
+    margin-bottom: 0;
+}
+blockquote {
+    border-left: 4px solid #dfe2e5;
+    padding: 0 15px;
+    color: #777777;
+}
+blockquote blockquote {
+    padding-right: 0;
+}
+table {
+    padding: 0;
+    word-break: initial;
+}
+table tr {
+    border: 1px solid #dfe2e5;
+    margin: 0;
+    padding: 0;
+}
+table tr:nth-child(2n),
+thead {
+    background-color: #f8f8f8;
+}
+table th {
+    font-weight: bold;
+    border: 1px solid #dfe2e5;
+    border-bottom: 0;
+    margin: 0;
+    padding: 6px 13px;
+}
+table td {
+    border: 1px solid #dfe2e5;
+    margin: 0;
+    padding: 6px 13px;
+}
+table th:first-child,
+table td:first-child {
+    margin-top: 0;
+}
+table th:last-child,
+table td:last-child {
+    margin-bottom: 0;
+}
+
+.CodeMirror-lines {
+    padding-left: 4px;
+}
+
+.code-tooltip {
+    box-shadow: 0 1px 1px 0 rgba(0,28,36,.3);
+    border-top: 1px solid #eef2f2;
+}
+
+.md-fences,
+code,
+tt {
+    border: 1px solid #e7eaed;
+    background-color: #f8f8f8;
+    border-radius: 3px;
+    padding: 0;
+    padding: 2px 4px 0px 4px;
+    font-size: 0.9em;
+}
+
+code {
+    background-color: #f3f4f4;
+    padding: 0 2px 0 2px;
+}
+
+.md-fences {
+    margin-bottom: 15px;
+    margin-top: 15px;
+    padding-top: 8px;
+    padding-bottom: 6px;
+}
+
+
+.md-task-list-item > input {
+  margin-left: -1.3em;
+}
+
+@media print {
+    html {
+        font-size: 13px;
+    }
+    pre {
+        page-break-inside: avoid;
+        word-wrap: break-word;
+    }
+}
+
+.md-fences {
+	background-color: #f8f8f8;
+}
+#write pre.md-meta-block {
+	padding: 1rem;
+    font-size: 85%;
+    line-height: 1.45;
+    background-color: #f7f7f7;
+    border: 0;
+    border-radius: 3px;
+    color: #777777;
+    margin-top: 0 !important;
+}
+
+.mathjax-block>.code-tooltip {
+	bottom: .375rem;
+}
+
+.md-mathjax-midline {
+    background: #fafafa;
+}
+
+#write>h3.md-focus:before{
+	left: -1.5625rem;
+	top: .375rem;
+}
+#write>h4.md-focus:before{
+	left: -1.5625rem;
+	top: .285714286rem;
+}
+#write>h5.md-focus:before{
+	left: -1.5625rem;
+	top: .285714286rem;
+}
+#write>h6.md-focus:before{
+	left: -1.5625rem;
+	top: .285714286rem;
+}
+.md-image>.md-meta {
+    /*border: 1px solid #ddd;*/
+    border-radius: 3px;
+    padding: 2px 0px 0px 4px;
+    font-size: 0.9em;
+    color: inherit;
+}
+
+.md-tag {
+    color: #a7a7a7;
+    opacity: 1;
+}
+
+.md-toc { 
+    margin-top:20px;
+    padding-bottom:20px;
+}
+
+.sidebar-tabs {
+    border-bottom: none;
+}
+
+#typora-quick-open {
+    border: 1px solid #ddd;
+    background-color: #f8f8f8;
+}
+
+#typora-quick-open-item {
+    background-color: #FAFAFA;
+    border-color: #FEFEFE #e5e5e5 #e5e5e5 #eee;
+    border-style: solid;
+    border-width: 1px;
+}
+
+/** focus mode */
+.on-focus-mode blockquote {
+    border-left-color: rgba(85, 85, 85, 0.12);
+}
+
+header, .context-menu, .megamenu-content, footer{
+    font-family: "Segoe UI", "Arial", sans-serif;
+}
+
+.file-node-content:hover .file-node-icon,
+.file-node-content:hover .file-node-open-state{
+    visibility: visible;
+}
+
+.mac-seamless-mode #typora-sidebar {
+    background-color: #fafafa;
+    background-color: var(--side-bar-bg-color);
+}
+
+.mac-os #write{
+    caret-color: AccentColor;
+}
+
+.md-lang {
+    color: #b4654d;
+}
+
+/*.html-for-mac {
+    --item-hover-bg-color: #E6F0FE;
+}*/
+
+#md-notification .btn {
+    border: 0;
+}
+
+.dropdown-menu .divider {
+    border-color: #e5e5e5;
+    opacity: 0.4;
+}
+
+.ty-preferences .window-content {
+    background-color: #fafafa;
+}
+
+.ty-preferences .nav-group-item.active {
+    color: white;
+    background: #999;
+}
+
+.menu-item-container a.menu-style-btn {
+    background-color: #f5f8fa;
+    background-image: linear-gradient( 180deg , hsla(0, 0%, 100%, 0.8), hsla(0, 0%, 100%, 0)); 
+}
+
+
+
+</style><title>Luogu Submitting Crawler 用户文档（Version 1）</title>
+</head>
+<body class='typora-export os-windows'><div class='typora-export-content'>
+<div id='write'  class=''><h1 id='luogu-submitting-crawler-用户文档'><span>Luogu Submitting Crawler 用户文档</span></h1><p><span>本文档阐述了Luogu Submitting Crawler的一系列功能、使用方法和条款，隐私等相关内容。</span></p><p><span>Luogu Submitting Crawler是一种爬虫工具，可以自动爬取luogu.com.cn上Accepted的代码。</span></p><div class="md-alert md-alert-important important"><p><span class='md-alert-text md-alert-text-important'><svg viewBox="0 0 16 16" version="1.1" width="1em" height="1em" aria-hidden="true"><path d="M0 1.75C0 .784.784 0 1.75 0h12.5C15.216 0 16 .784 16 1.75v9.5A1.75 1.75 0 0 1 14.25 13H8.06l-2.573 2.573A1.458 1.458 0 0 1 3 14.543V13H1.75A1.75 1.75 0 0 1 0 11.25Zm1.75-.25a.25.25 0 0 0-.25.25v9.5c0 .138.112.25.25.25h2a.75.75 0 0 1 .75.75v2.19l2.72-2.72a.749.749 0 0 1 .53-.22h6.5a.25.25 0 0 0 .25-.25v-9.5a.25.25 0 0 0-.25-.25Zm7 2.25v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 9a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Important</span><br></p><p><span>本文档针对于</span><strong><span>Luogu Submitting Crawler 2.0.1</span></strong><span>编写。对于非此版本的用户，本文档可能有部分内容不适用于你。请注意辨别。</span></p></div><p><span>本文档分为若干章节，你可使用目录快速导航到你想要了解的部分。以下为本文档目录。</span></p><div class='md-toc' mdtype='toc'><p class="md-toc-content" role="list"><span role="listitem" class="md-toc-item md-toc-h1" data-ref="n0"><a class="md-toc-inner" href="#luogu-submitting-crawler-用户文档">Luogu Submitting Crawler 用户文档</a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n10"><a class="md-toc-inner" href="#关于luogu-submitting-crawler">关于Luogu Submitting Crawler</a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n15"><a class="md-toc-inner" href="#关于luogu-submitting-crawler软件本体及其源代码">关于Luogu Submitting Crawler软件本体及其源代码</a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n23"><a class="md-toc-inner" href="#兼容性和适用性信息">兼容性和适用性信息</a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n27"><a class="md-toc-inner" href="#关于附属组件及其源代码">关于附属组件及其源代码</a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n57"><a class="md-toc-inner" href="#关于本文档">关于本文档</a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n60"><a class="md-toc-inner" href="#获取和安装luogu-submitting-crawler以及其的目录与文件信息">获取和安装Luogu Submitting Crawler以及其的目录与文件信息</a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n62"><a class="md-toc-inner" href="#下载luogu-submitting-crawler">下载Luogu Submitting Crawler</a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n69"><a class="md-toc-inner" href="#安装luogu-submitting-crawler">安装Luogu Submitting Crawler</a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n76"><a class="md-toc-inner" href="#luogu-submitting-crawler文件和目录">Luogu Submitting Crawler文件和目录</a></span><span role="listitem" class="md-toc-item md-toc-h4" data-ref="n86"><a class="md-toc-inner" href="#目录">目录</a></span><span role="listitem" class="md-toc-item md-toc-h4" data-ref="n93"><a class="md-toc-inner" href="#文件">文件</a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n109"><a class="md-toc-inner" href="#设置luogu-submitting-crawler并开始爬取">设置Luogu Submitting Crawler并开始爬取</a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n114"><a class="md-toc-inner" href="#键入cookie">键入Cookie</a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n129"><a class="md-toc-inner" href="#设定保存评判依据保存文件名和网络请求参数">设定保存评判依据、保存文件名和网络请求参数</a></span><span role="listitem" class="md-toc-item md-toc-h4" data-ref="n131"><a class="md-toc-inner" href="#保存评判依据">保存评判依据</a></span><span role="listitem" class="md-toc-item md-toc-h4" data-ref="n136"><a class="md-toc-inner" href="#保存文件名">保存文件名</a></span><span role="listitem" class="md-toc-item md-toc-h4" data-ref="n146"><a class="md-toc-inner" href="#网络请求参数">网络请求参数</a></span><span role="listitem" class="md-toc-item md-toc-h5" data-ref="n148"><a class="md-toc-inner" href="#请求持续时间">请求持续时间</a></span><span role="listitem" class="md-toc-item md-toc-h5" data-ref="n150"><a class="md-toc-inner" href="#相邻请求间隔">相邻请求间隔</a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n157"><a class="md-toc-inner" href="#选择爬取模式">选择爬取模式</a></span><span role="listitem" class="md-toc-item md-toc-h4" data-ref="n160"><a class="md-toc-inner" href="#一般爬取">一般爬取</a></span><span role="listitem" class="md-toc-item md-toc-h4" data-ref="n163"><a class="md-toc-inner" href="#单题爬取">单题爬取</a></span><span role="listitem" class="md-toc-item md-toc-h4" data-ref="n166"><a class="md-toc-inner" href="#增量爬取">增量爬取</a></span><span role="listitem" class="md-toc-item md-toc-h4" data-ref="n178"><a class="md-toc-inner" href="#夜间计划爬取">夜间计划爬取</a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n188"><a class="md-toc-inner" href="#开始爬取">开始爬取</a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n194"><a class="md-toc-inner" href="#提取和管理已经爬取的代码">提取和管理已经爬取的代码</a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n202"><a class="md-toc-inner" href="#提取已经爬取到本地的代码">提取已经爬取到本地的代码</a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n211"><a class="md-toc-inner" href="#手动修改指定题目名称">手动修改指定题目名称</a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n222"><a class="md-toc-inner" href="#将代码按当前设定的格式重命名">将代码按当前设定的格式重命名</a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n230"><a class="md-toc-inner" href="#删除爬取的代码和参数文件">删除爬取的代码和参数文件</a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n235"><a class="md-toc-inner" href="#luogu-submitting-crawler的其他部分和功能">Luogu Submitting Crawler的其他部分和功能</a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n240"><a class="md-toc-inner" href="#更新检查">更新检查</a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n245"><a class="md-toc-inner" href="#还原">还原</a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n253"><a class="md-toc-inner" href="#状态图标">状态图标</a></span><span role="listitem" class="md-toc-item md-toc-h2" data-ref="n294"><a class="md-toc-inner" href="#遥测">遥测</a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n300"><a class="md-toc-inner" href="#关于遥测及其隐私">关于遥测及其隐私</a></span><span role="listitem" class="md-toc-item md-toc-h3" data-ref="n316"><a class="md-toc-inner" href="#设置和监控遥测">设置和监控遥测</a></span></p></div><hr /><h2 id='关于luogu-submitting-crawler'><span>关于Luogu Submitting Crawler</span></h2><div class="md-alert md-alert-important important"><p><span class='md-alert-text md-alert-text-important'><svg viewBox="0 0 16 16" version="1.1" width="1em" height="1em" aria-hidden="true"><path d="M0 1.75C0 .784.784 0 1.75 0h12.5C15.216 0 16 .784 16 1.75v9.5A1.75 1.75 0 0 1 14.25 13H8.06l-2.573 2.573A1.458 1.458 0 0 1 3 14.543V13H1.75A1.75 1.75 0 0 1 0 11.25Zm1.75-.25a.25.25 0 0 0-.25.25v9.5c0 .138.112.25.25.25h2a.75.75 0 0 1 .75.75v2.19l2.72-2.72a.749.749 0 0 1 .53-.22h6.5a.25.25 0 0 0 .25-.25v-9.5a.25.25 0 0 0-.25-.25Zm7 2.25v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 9a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Important</span><br></p><p><span>本章节</span><em><span>（关于Luogu Submitting Crawler）</span></em><span>与下一章节</span><em><span>（获取和安装Luogu Submitting Crawler和其的目录与文件信息）</span></em><span>的内容是使用（不包括下载和安装）Luogu Submitting Crawler前需要了解的内容。请确保在使用本软件前阅读过此部分。</span></p></div><p><span>本章节阐述了Luogu Submitting Crawler的性质，条款及宏观注意事项。</span></p><h3 id='关于luogu-submitting-crawler软件本体及其源代码'><span>关于Luogu Submitting Crawler软件本体及其源代码</span></h3><p><span>Luogu Submitting Crawler</span><strong><span>（包括其附属组件sysGetor，localFetcher，updateChecker和telemetryAssist，本文档其他部分同；以下可能简称为”本软件“）</span></strong><span>由</span><strong><span>Journals Junction Hybrid</span></strong><span>（以下可能简称为”开发者“或”我们“）开发与发行，使用GNU General Public License 3软件许可证，源代码托管于GitHub。正式版也镜像存储于lanzoui.com。Luogu Submitting Crawler是自由软件，禁止进行二次销售、许可等。若你更改了Luogu Submitting Crawler或使用了它的部分代码，都必须开放源代码。相关条款已经随附于Luogu Submitting Crawler的分发文件中。</span></p><p><span>GitHub仓库为：</span><a href='https://github.com/QianCheng-China/LuoguSubmittingCrawler'><span>Luogu Submitting Crawler</span></a></p><p><span>Luogu Submitting Crawler属于爬虫范畴，请在使用时注意有关规则。</span></p><div class="md-alert md-alert-caution caution"><p><span class='md-alert-text md-alert-text-caution'><svg viewBox="0 0 16 16" version="1.1" width="1em" height="1em" aria-hidden="true"><path d="M4.47.22A.749.749 0 0 1 5 0h6c.199 0 .389.079.53.22l4.25 4.25c.141.14.22.331.22.53v6a.749.749 0 0 1-.22.53l-4.25 4.25A.749.749 0 0 1 11 16H5a.749.749 0 0 1-.53-.22L.22 11.53A.749.749 0 0 1 0 11V5c0-.199.079-.389.22-.53Zm.84 1.28L1.5 5.31v5.38l3.81 3.81h5.38l3.81-3.81V5.31L10.69 1.5ZM8 4a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 8 4Zm0 8a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Caution</span><br></p><p><span>luogu.com.cn在其网站的robots.txt中明确将record列为Disallow类型。但Luogu Submitting Crawler必须使用其内数据来获取源代码。因此请特别注意使用时的行为。不要使网络请求过于频繁以至于接近DDoS频率。</span><strong><span>使用Luogu Submitting Crawler造成的一切责任与开发者无关</span></strong><span>。</span></p></div><p><strong><span>Luogu Submitting Crawler不提供任何担保。</span></strong></p><h3 id='兼容性和适用性信息'><span>兼容性和适用性信息</span></h3><p><span>Luogu Submitting Crawler</span><strong><span>仅支持Windows</span></strong><span>。其开发环境为</span><strong><span>Windows 11 24H2 ARM</span></strong><span>。我们尚未在所有版本的Windows上测试其兼容性，但我们建议在</span><strong><span>Windows 10及更新版本</span></strong><span>上使用Luogu Submitting Crawler。</span></p><p><span>使用Luogu Submitting Crawler时，</span><strong><span>请确认你的计算机具有curl</span></strong><span>。若没有或版本过低，请自行下载最新的curl并将其二进制文件（包括其同级目录下的文件）放置在</span><strong><span>Luogu Submitting Crawler二进制文件同目录</span></strong><span>。否则可能导致本软件无法运行。</span></p><p><span>Luogu Submitting Crawler需要</span><strong><span>稳定的网络连接</span></strong><span>。</span></p><h3 id='关于附属组件及其源代码'><span>关于附属组件及其源代码</span></h3><p><span>Luogu Submitting Crawler具有几个附属组件，以支持其运行、拓展其能力并使得功能模块化。下表给出了它们的一些信息。</span></p><figure class='table-figure'><table><thead><tr><th><span>附属组件名称</span></th><th><span>功能</span></th><th><span>版本迭代【附属组件版本（软件本体版本）】</span></th></tr></thead><tbody><tr><td><code>sysGetor.exe</code></td><td><span>获取系统信息</span></td><td><span>1（2.0.0，2.0.1 Beta）；2（2.0.1）</span></td></tr><tr><td><code>localFetcher.exe</code></td><td><span>获取区域信息</span></td><td><span>1（2.0.0，2.0.1 Beta，2.0.1）</span></td></tr><tr><td><code>updateChecker.exe</code></td><td><span>联网检查更新</span></td><td><span>1（2.0.0，2.0.1 Beta）；2（2.0.1）</span></td></tr><tr><td><code>telemetryAssist.exe</code></td><td><span>收集、编码错误报告等文件并对其进行遥测</span></td><td><span>Beta 1（2.0.1 Beta）；1（2.0.1）</span></td></tr></tbody></table></figure><div class="md-alert md-alert-warning warning"><p><span class='md-alert-text md-alert-text-warning'><svg viewBox="0 0 16 16" version="1.1" width="1em" height="1em" aria-hidden="true"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Warning</span><br></p><p><span>不要更改，删除，移动附属组件、重命名附属组件或对其进行其他操作，否则极易导致Luogu Submitting Crawler不按预期运行。这可能造成不良后果。</span></p></div><div class="md-alert md-alert-note note"><p><span class='md-alert-text md-alert-text-note'><svg viewBox="0 0 16 16" version="1.1" width="1em" height="1em" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</span><br></p><p><span>由于一些原因，附属组件telemetryAssist的源代码并未完整提供。自行编译的telemetryAssist将无法正常工作。</span></p></div><p><strong><span>附属组件与Luogu Submitting Crawler本体一同由相关条款许可。</span></strong></p><h3 id='关于本文档'><span>关于本文档</span></h3><p><span>本文档于不应该被除我们之外的任何人更改。非我们编写和更改的文档可能具有误导性，你不应该阅读它们。</span></p><p><span>我们已尽力确保本文档文字及表述准确。</span><strong><span>对于印刷或文字错误，我们概不负责。</span></strong><span>我们会将最新的文档发布在GitHub上。</span></p><h2 id='获取和安装luogu-submitting-crawler以及其的目录与文件信息'><span>获取和安装Luogu Submitting Crawler以及其的目录与文件信息</span></h2><p><span>本章节将阐述如何将本软件安装到你的计算机上，以及Luogu Submitting Crawler的目录结构和文件功能。</span></p><h3 id='下载luogu-submitting-crawler'><span>下载Luogu Submitting Crawler</span></h3><p><span>你可从GitHub下载发布版本：</span><a href='https://github.com/QianCheng-China/LuoguSubmittingCrawler/releases'><span>Releases · Luogu Submitting Crawler</span></a><span>。</span></p><div class="md-alert md-alert-tip tip"><p><span class='md-alert-text md-alert-text-tip'><svg viewBox="0 0 16 16" version="1.1" width="1em" height="1em" aria-hidden="true"><path d="M8 1.5c-2.363 0-4 1.69-4 3.75 0 .984.424 1.625.984 2.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621 1.49a.75.75 0 0 1-1.484.211c-.04-.282-.163-.547-.37-.847a8.456 8.456 0 0 0-.542-.68c-.084-.1-.173-.205-.268-.32C3.201 7.75 2.5 6.766 2.5 5.25 2.5 2.31 4.863 0 8 0s5.5 2.31 5.5 5.25c0 1.516-.701 2.5-1.328 3.259-.095.115-.184.22-.268.319-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751 0 0 1-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848.075-.088.147-.173.213-.253.561-.679.985-1.32.985-2.304 0-2.06-1.637-3.75-4-3.75ZM5.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM6 15.25a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 0 1.5h-2.5a.75.75 0 0 1-.75-.75Z"></path></svg>Tip</span><br></p><p><span>对于中国大陆用户，建议使用镜像下载。</span></p></div><p><span>分发文件中应该包含GNU General Public License的原始版本的中文版本，本软件及其附加组件的二进制文件，本用户文档以及本软件和附加组件的C++源代码。</span></p><p><strong><span>为了确保安全，你应在下载后验证下载文件的SHA256。</span></strong></p><h3 id='安装luogu-submitting-crawler'><span>安装Luogu Submitting Crawler</span></h3><p><span>解压下载的分发文件，然后将解压产物移入一个文件夹中。</span><strong><span>请不要更改其中的任何内容。</span></strong><span>你可将文件夹放置在计算机的任何适当目录下。随后在桌面创建本软件本体的快捷方式即安装完成。</span></p><p><span>如果你拥有旧版本的Luogu Submitting Crawler，则请确认其配置文件等是否与新版本兼容，否则可能导致错误。</span></p><div class="md-alert md-alert-tip tip"><p><span class='md-alert-text md-alert-text-tip'><svg viewBox="0 0 16 16" version="1.1" width="1em" height="1em" aria-hidden="true"><path d="M8 1.5c-2.363 0-4 1.69-4 3.75 0 .984.424 1.625.984 2.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621 1.49a.75.75 0 0 1-1.484.211c-.04-.282-.163-.547-.37-.847a8.456 8.456 0 0 0-.542-.68c-.084-.1-.173-.205-.268-.32C3.201 7.75 2.5 6.766 2.5 5.25 2.5 2.31 4.863 0 8 0s5.5 2.31 5.5 5.25c0 1.516-.701 2.5-1.328 3.259-.095.115-.184.22-.268.319-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751 0 0 1-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848.075-.088.147-.173.213-.253.561-.679.985-1.32.985-2.304 0-2.06-1.637-3.75-4-3.75ZM5.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM6 15.25a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 0 1.5h-2.5a.75.75 0 0 1-.75-.75Z"></path></svg>Tip</span><br></p><p><span>若出现此种情况，我们建议删除旧版本的所有数据。以避免出现配置文件兼容性问题。</span></p></div><p><span>如果你要卸载Luogu Submitting Crawler，将包含其的文件夹删除即可。</span></p><h3 id='luogu-submitting-crawler文件和目录'><span>Luogu Submitting Crawler文件和目录</span></h3><p><span>Luogu Submitting Crawler会生成一些目录和文件，以下是它们的信息。</span></p><p><span>这些目录和文件仅会在Luogu Submitting Crawler同级目录下生成。</span></p><div class="md-alert md-alert-note note"><p><span class='md-alert-text md-alert-text-note'><svg viewBox="0 0 16 16" version="1.1" width="1em" height="1em" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</span><br></p><p><span>GNU General Public License许可证文件和源代码目录不在本章节讨论的范围内。附属组件和用户文档的相关信息已在上文中做出说明，同样不纳入讨论。</span></p></div><div class="md-alert md-alert-warning warning"><p><span class='md-alert-text md-alert-text-warning'><svg viewBox="0 0 16 16" version="1.1" width="1em" height="1em" aria-hidden="true"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Warning</span><br></p><p><span>不要人为对本软件目录中的任何文件作任何更改，否则可能导致本软件不按预期运行。</span></p></div><p><span>本章节中的”目录“可作为”文件夹“理解。</span></p><h4 id='目录'><span>目录</span></h4><div class="md-alert md-alert-note note"><p><span class='md-alert-text md-alert-text-note'><svg viewBox="0 0 16 16" version="1.1" width="1em" height="1em" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</span><br></p><p><span>在本章节中，_uid表示用户的luogu UID，pid表示luogu的题号。它们相当于两个变量。</span></p></div><p><strong><span>Code</span></strong><span>：结构为</span><code>code\_uid\*.*</code><span>，分_uid存储所爬取的源代码。源代码根据不同的语言保存为不同的文件类型。</span></p><p><strong><span>Record：</span></strong><span>结构为</span><code>record\_uid\*.txt</code><span>，分_uid存储存储代码有关参数。其中，</span><code>pid.txt</code><span>存储某一题的所有代码及其文件参数，</span><code>pid_best.txt</code><span>存储某一题最优代码参数。</span><strong><span>这两者除在软件爬取过程中一般不单独存在。否则表明软件工作可能存在问题。</span></strong><span>该目录下还可能存在</span><code>last.txt</code><span>，这记录了上一次爬取的最新运行号。这个文件为“增量爬取”提供了参照。</span></p><p><strong><span>Problem：</span></strong><span>结构为</span><code>problem\pid.txt</code><span>，存储每一题的题目名称。由软件自动爬取得来，用户可在之后自行更改。</span></p><h4 id='文件'><span>文件</span></h4><p><code>tmp.txt</code><span>，由本软件本体生成，存储一些临时数据或一些无法直接读取的内容。</span></p><p><code>setting.txt</code><span>，由本软件本体生成，存储用户的设置信息。</span></p><p><code>log.txt</code><span>，由本软件本体生成，存储本次软件运行时输出的错误数据（</span><code>stderr</code><span>）。sysGetor虽然会在软件启动时向其写入内容，但进程结束后内容即会被删除。</span></p><p><code>logArchive.txt</code><span>，由本软件本体生成，存储之前的错误数据。</span></p><p><code>cookie.txt</code><span>，由本软件本体生成，存储用户保存的Cookie（已进行加密）。</span><strong><span>当软件启动时发现Cookie失效，用户更新或删除本地Cookie时，该文件即被删除。</span></strong></p><p><code>telemetry.txt</code><span>，由本软件本体生成，存储需要telemetryAssist遥测的文件。</span></p><p><code>sysinfo.txt</code><span>，由附属组件sysGetor和localFetcher生成，存储用户的系统数据。包括</span><strong><span>smBIOS UUID、MachineGUID、计算机名和用户名、地区信息</span></strong><span>。</span></p><p><code>updateTmp.txt</code><span>，由附属组件updateChecker生成，存储更新检查时产生的临时数据或无法直接读取的内容。updateChecker启动时会将旧的文件删除。</span></p><p><code>update.txt</code><span>，由附属组件updateChecker生成，存储获取到的最新版本号。updateChecker启动时会将旧的文件删除。</span></p><p><code>telemetryTmp.txt</code><span>，由附属组件telemetryAssist生成，存储遥测时产生的临时数据或无法直接读取的内容。</span></p><p><code>telemetryStatus.txt</code><span>，由附属组件telemetryAssist生成，存储当前其的状态。</span></p><p><code>telemetryTime.txt</code><span>，由附属组件telemetryAssist生成，存储上一次成功遥测的时间和耗时。telemetryAssist启动时会将旧的文件删除。</span></p><div class="md-alert md-alert-warning warning"><p><span class='md-alert-text md-alert-text-warning'><svg viewBox="0 0 16 16" version="1.1" width="1em" height="1em" aria-hidden="true"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Warning</span><br></p><p><span>要删除所有的目录和文件，可使用”还原“功能。</span><strong><span>数据删除后无法恢复，请谨慎操作。</span></strong></p></div><h2 id='设置luogu-submitting-crawler并开始爬取'><span>设置Luogu Submitting Crawler并开始爬取</span></h2><div class="md-alert md-alert-important important"><p><span class='md-alert-text md-alert-text-important'><svg viewBox="0 0 16 16" version="1.1" width="1em" height="1em" aria-hidden="true"><path d="M0 1.75C0 .784.784 0 1.75 0h12.5C15.216 0 16 .784 16 1.75v9.5A1.75 1.75 0 0 1 14.25 13H8.06l-2.573 2.573A1.458 1.458 0 0 1 3 14.543V13H1.75A1.75 1.75 0 0 1 0 11.25Zm1.75-.25a.25.25 0 0 0-.25.25v9.5c0 .138.112.25.25.25h2a.75.75 0 0 1 .75.75v2.19l2.72-2.72a.749.749 0 0 1 .53-.22h6.5a.25.25 0 0 0 .25-.25v-9.5a.25.25 0 0 0-.25-.25Zm7 2.25v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 9a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Important</span><br></p><p><span>本章节</span><em><span>（设置Luogu Submitting Crawler并开始爬取）</span></em><span>与下一章节</span><em><span>（提取和管理已经爬取的代码）</span></em><span>的内容是Luogu Submitting Crawler的流程使用指南，你可在这些部分学习如何使用Luogu Submitting Crawler。</span></p></div><p><span>本章节阐述了如何对Luogu Submitting Crawler进行设置，以做好爬取准备。</span></p><h3 id='键入cookie'><span>键入Cookie</span></h3><p><span>Luogu Submitting Crawler需要你的Cookie才能爬取代码。因此需要你从浏览器获取Cookie后键入Luogu Submitting Crawler。我们需要_uid和__client_id。</span></p><p><span>在Luogu Submitting Crawler中，一组合法Cookie相当于一个用户。如果没有Cookie，你将无法使用其内的大部分功能。除了题目名称由所有用户共享，代码与代码参数均按照用户分类存放，且你无法对其他用户的代码和参数执行操作。</span><strong><span>区别用户的依据是_uid。</span></strong></p><p><span>转到”管理Cookie-键入Cookie“来管理你的Cookie。</span></p><div class="md-alert md-alert-note note"><p><span class='md-alert-text md-alert-text-note'><svg viewBox="0 0 16 16" version="1.1" width="1em" height="1em" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</span><br></p><p><span>我们将严格保护你的Cookie，不会向Internet发送你的Cookie。若你选择将Cookie保存到本地，我们将对__client_id基于你计算机的smBIOS UUID和MachineGUID进行加密。smBIOS UUID可能在不同计算机上重复，但MachineGUID是唯一的。若将加密的Cookie保存文件（</span><code>cookie.txt</code><span>）转移到另一台计算机上，则将无法解密。当然，我们也不会共享你的加密Cookie保存文件。</span></p></div><div class="md-alert md-alert-caution caution"><p><span class='md-alert-text md-alert-text-caution'><svg viewBox="0 0 16 16" version="1.1" width="1em" height="1em" aria-hidden="true"><path d="M4.47.22A.749.749 0 0 1 5 0h6c.199 0 .389.079.53.22l4.25 4.25c.141.14.22.331.22.53v6a.749.749 0 0 1-.22.53l-4.25 4.25A.749.749 0 0 1 11 16H5a.749.749 0 0 1-.53-.22L.22 11.53A.749.749 0 0 1 0 11V5c0-.199.079-.389.22-.53Zm.84 1.28L1.5 5.31v5.38l3.81 3.81h5.38l3.81-3.81V5.31L10.69 1.5ZM8 4a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 8 4Zm0 8a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Caution</span><br></p><p><span>不要将Cookie发送给其他任何人。否则你的账号极易被盗用。</span></p></div><p><span>在获取Cookie前，你必须在近30天内登录过luogu.com.cn。获取Cookie的方法请自行查找，本文档不作说明。</span></p><p><span>Cookie验证成功后，你可以选择将其加密保存到本地。此时你将无需每次启动时重新键入Cookie。</span><strong><span>Cookie的有效期一般为30天。</span></strong><span>本软件将在每次启动时检查一次保存在本地的Cookie。若发现其失效，则会将保存在本地的Cookie文件删除。此时你可能需要重新登录，然后键入新的Cookie。</span></p><div class="md-alert md-alert-tip tip"><p><span class='md-alert-text md-alert-text-tip'><svg viewBox="0 0 16 16" version="1.1" width="1em" height="1em" aria-hidden="true"><path d="M8 1.5c-2.363 0-4 1.69-4 3.75 0 .984.424 1.625.984 2.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621 1.49a.75.75 0 0 1-1.484.211c-.04-.282-.163-.547-.37-.847a8.456 8.456 0 0 0-.542-.68c-.084-.1-.173-.205-.268-.32C3.201 7.75 2.5 6.766 2.5 5.25 2.5 2.31 4.863 0 8 0s5.5 2.31 5.5 5.25c0 1.516-.701 2.5-1.328 3.259-.095.115-.184.22-.268.319-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751 0 0 1-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848.075-.088.147-.173.213-.253.561-.679.985-1.32.985-2.304 0-2.06-1.637-3.75-4-3.75ZM5.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM6 15.25a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 0 1.5h-2.5a.75.75 0 0 1-.75-.75Z"></path></svg>Tip</span><br></p><p><span>如果你认为你键入了正确的Cookie，但仍无法通过验证，请检查你的curl版本。如果不是最新版，请自行下载最新版本</span><strong><span>（注意处理器架构和位数）</span></strong><span>并将其二进制文件</span><strong><span>（包括其同级目录下的文件）</span></strong><span>放置在Luogu Submitting Crawler二进制文件同目录。然后再试一次。若仍不成功，请上报GitHub的Issue板块。并注明你的</span><strong><span>系统版本（类似于Windows 11 24H2；10.0.26100.4652）</span></strong><span>以便我们查找问题。</span></p></div><h3 id='设定保存评判依据保存文件名和网络请求参数'><span>设定保存评判依据、保存文件名和网络请求参数</span></h3><p><span>本章节阐述了保存代码时的评判机制以及代码文件名有关事项。</span></p><h4 id='保存评判依据'><span>保存评判依据</span></h4><div class="md-alert md-alert-note note"><p><span class='md-alert-text md-alert-text-note'><svg viewBox="0 0 16 16" version="1.1" width="1em" height="1em" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</span><br></p><p><span>如果你启用了“保存所有AC代码”功能，则对于保存代码而言“评判依据”规则将失效。但本软件仍将根据此规则保存和更新最优代码参数。</span></p></div><p><span>Luogu Submitting Crawler可根据你设定的规则比较代码不同维度参数从而保存“最优”代码。本软件支持比较“时间，内存，代码长度，提交时间”四个维度。其中其三个维度越小越优，最后一个维度新/旧均可。你可调整这四个维度的比较顺序。</span><strong><span>当两个代码在某个维度上相同时，Luogu Submitting Crawler会继续比较下一个维度直至出现差异。</span></strong></p><h4 id='保存文件名'><span>保存文件名</span></h4><p><span>Luogu Submitting Crawler会自动按你的设置为爬取的代码命名。每一个名称的结构如下：</span><code>pid probName submitTime rid.exName</code><span>。其顺序无法修改。</span></p><p><span>其中，</span><code>pid</code><span>为该代码对应题目的题号</span><strong><span>（此项无法取消）</span></strong><span>，</span><code>probName</code><span>为该代码对应题目的名称，</span><code>submitTime</code><span>为该代码的提交时间，</span><code>rid</code><span>为该代码的运行号，</span><code>exName</code><span>为该代码的扩展名</span><strong><span>（由代码的语言对应）</span></strong><span>。</span></p><div class="md-alert md-alert-note note"><p><span class='md-alert-text md-alert-text-note'><svg viewBox="0 0 16 16" version="1.1" width="1em" height="1em" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</span><br></p><p><span>对于</span><code>exName</code><span>项，Luogu Submitting Crawler可自动为Pascal，C，C++，Python，Java，Rust，Go，Haskell，PHP语言设置其对应的扩展名，&quot;提交答案&quot;的扩展名为</span><code>ans</code><span>，其他语言一律保存为</span><code>txt</code><span>。</span></p></div><div class="md-alert md-alert-caution caution"><p><span class='md-alert-text md-alert-text-caution'><svg viewBox="0 0 16 16" version="1.1" width="1em" height="1em" aria-hidden="true"><path d="M4.47.22A.749.749 0 0 1 5 0h6c.199 0 .389.079.53.22l4.25 4.25c.141.14.22.331.22.53v6a.749.749 0 0 1-.22.53l-4.25 4.25A.749.749 0 0 1 11 16H5a.749.749 0 0 1-.53-.22L.22 11.53A.749.749 0 0 1 0 11V5c0-.199.079-.389.22-.53Zm.84 1.28L1.5 5.31v5.38l3.81 3.81h5.38l3.81-3.81V5.31L10.69 1.5ZM8 4a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 8 4Zm0 8a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Caution</span><br></p><p><span>由于Windows的文件系统不支持某些字符，因此若原题目名称含有这些字符，则软件会将题目名称设为</span><code>Illegal_File_Name</code><span>。在手动修改题目名称时，也请避免这些不支持的字符，</span><strong><span>否则当这些题目名称被作为文件名时将出现错误</span></strong><span>。</span><strong><span>此时可能需要重新爬取所有代码。</span></strong></p><p><span>当“保存所有AC代码”启用时，</span><code>rid</code><span>项必须被选择，否则可能导致文件重名。</span><strong><span>当你打开“保存所有AC代码”或取消选择</span><code>rid</code><span>项时，另外一个选项将会自动切换。</span></strong></p></div><h4 id='网络请求参数'><span>网络请求参数</span></h4><p><span>当Luogu Submitting Crawler使用curl执行网络请求时，其会附带一些参数。你可根据需要进行调整。</span></p><h5 id='请求持续时间'><span>请求持续时间</span></h5><p><span>该值限制了网络请求的持续时间。如果请求超过该时间限制，则请求将停止并返回错误。</span></p><h5 id='相邻请求间隔'><span>相邻请求间隔</span></h5><p><span>该值限制了相邻两个网络请求的间隔时间，以使得网络请求不至于过快。</span></p><div class="md-alert md-alert-tip tip"><p><span class='md-alert-text md-alert-text-tip'><svg viewBox="0 0 16 16" version="1.1" width="1em" height="1em" aria-hidden="true"><path d="M8 1.5c-2.363 0-4 1.69-4 3.75 0 .984.424 1.625.984 2.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621 1.49a.75.75 0 0 1-1.484.211c-.04-.282-.163-.547-.37-.847a8.456 8.456 0 0 0-.542-.68c-.084-.1-.173-.205-.268-.32C3.201 7.75 2.5 6.766 2.5 5.25 2.5 2.31 4.863 0 8 0s5.5 2.31 5.5 5.25c0 1.516-.701 2.5-1.328 3.259-.095.115-.184.22-.268.319-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751 0 0 1-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848.075-.088.147-.173.213-.253.561-.679.985-1.32.985-2.304 0-2.06-1.637-3.75-4-3.75ZM5.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM6 15.25a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 0 1.5h-2.5a.75.75 0 0 1-.75-.75Z"></path></svg>Tip</span><br></p><p><strong><span>对于“请求持续时间”：</span></strong><span>如果你的计算机网络连接良好，速度较快，则可适当降低该值。若你计算机的网络速度不佳，则建议适当延长该值。</span></p><p><strong><span>对于“相邻请求间隔”：</span></strong><span>如果你的计算机性能良好，则建议增加该值；否则可适当降低该值。</span></p><p><span>你也可以保持默认设置，一般不会有太大影响。</span></p></div><h3 id='选择爬取模式'><span>选择爬取模式</span></h3><p><span>本章节阐述了不同爬取模式的差异，以及“夜间计划爬取”的特性。</span></p><p><span>在以上章节所提及的设置均完成后，转到“开始爬取”，然后选取不同的爬取模式。</span></p><h4 id='一般爬取'><span>一般爬取</span></h4><p><span>该模式在爬取前会清除本luogu账户下所有爬取的代码及代码参数，并重新爬取所有的代码。</span></p><p><span>该模式的爬取记录将为下一次的</span><strong><span>增量爬取</span></strong><span>提供参照。</span></p><h4 id='单题爬取'><span>单题爬取</span></h4><p><span>该模式会在爬取前删除指定题目在本地保存的文件名，以及本luogu账户指定题目爬取的所有代码及代码参数，并重新爬取指定题目名称及其所有代码。</span></p><p><strong><span>该模式的爬取记录无法用于增量爬取。</span></strong></p><h4 id='增量爬取'><span>增量爬取</span></h4><p><span>该模式不会删除任何文件，会爬取代码直至上次已经爬取的部分。该模式需要上一次的记录文件作为参照。</span></p><p><span>该模式的爬取记录将为下一次的</span><strong><span>增量爬取</span></strong><span>提供参照。</span></p><div class="md-alert md-alert-note note"><p><span class='md-alert-text md-alert-text-note'><svg viewBox="0 0 16 16" version="1.1" width="1em" height="1em" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</span><br></p><p><span>如果增量爬取不可用，则其将不会显示。</span></p></div><div class="md-alert md-alert-tip tip"><p><span class='md-alert-text md-alert-text-tip'><svg viewBox="0 0 16 16" version="1.1" width="1em" height="1em" aria-hidden="true"><path d="M8 1.5c-2.363 0-4 1.69-4 3.75 0 .984.424 1.625.984 2.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621 1.49a.75.75 0 0 1-1.484.211c-.04-.282-.163-.547-.37-.847a8.456 8.456 0 0 0-.542-.68c-.084-.1-.173-.205-.268-.32C3.201 7.75 2.5 6.766 2.5 5.25 2.5 2.31 4.863 0 8 0s5.5 2.31 5.5 5.25c0 1.516-.701 2.5-1.328 3.259-.095.115-.184.22-.268.319-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751 0 0 1-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848.075-.088.147-.173.213-.253.561-.679.985-1.32.985-2.304 0-2.06-1.637-3.75-4-3.75ZM5.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM6 15.25a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 0 1.5h-2.5a.75.75 0 0 1-.75-.75Z"></path></svg>Tip</span><br></p><p><span>如果你是第一次使用Luogu Submitting Crawler或之前使用过但旧版本参数文件与新版本不兼容，则建议使用</span><strong><span>一般爬取</span></strong><span>。</span></p><p><span>如果某一道题进行了重测或题目名称进行了更新，或者你只需要某一题的代码，建议使用</span><strong><span>单题爬取</span></strong><span>。</span></p><p><span>如果之前已爬取了部分代码，</span><strong><span>增量爬取</span></strong><span>可用且你希望继续更新你本地的代码，建议使用此模式。该模式可降低网络请求数量和重复爬取的次数，更好减轻服务器的负担并节省能源。</span></p></div><p><span>爬取模式设置完成后，你可决定是否启用夜间计划爬取。</span></p><h4 id='夜间计划爬取'><span>夜间计划爬取</span></h4><p><span>夜间计划爬取设置后，Luogu Submitting Crawler会在</span><strong><span>23:00</span></strong><span>开始爬取。当爬取完成后，如果</span><strong><span>夜间计划爬取没有退出</span></strong><span>，则Luogu Submitting Crawler将自动关闭计算机。</span><strong><span>关闭计算机将有60秒的超时，在这段时间内你可以取消关机</span></strong><span>。</span></p><p><span>如果夜间计划爬取进入等待阶段时你希望立即开始爬取，请按下esc键，此时</span><strong><span>夜间计划爬取将退出</span></strong><span>并立即开始爬取。如果你在夜间计划爬取自动开始后希望</span><strong><span>退出该模式</span></strong><span>，也请按esc键中止爬取，然后重新爬取即可。</span><strong><span>退出夜间计划爬取不会影响代码爬取</span></strong><span>。若代码爬取时有任何中断，</span><strong><span>如果此时夜间计划爬取处于开启状态，也将自动退出</span></strong><span>并暂停爬取进程以便用户确认。</span></p><p><span>若你希望使用该功能，</span><strong><span>请确认计算机在夜间能够正常运行且网络活动不会中断</span></strong><span>。</span></p><div class="md-alert md-alert-tip tip"><p><span class='md-alert-text md-alert-text-tip'><svg viewBox="0 0 16 16" version="1.1" width="1em" height="1em" aria-hidden="true"><path d="M8 1.5c-2.363 0-4 1.69-4 3.75 0 .984.424 1.625.984 2.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621 1.49a.75.75 0 0 1-1.484.211c-.04-.282-.163-.547-.37-.847a8.456 8.456 0 0 0-.542-.68c-.084-.1-.173-.205-.268-.32C3.201 7.75 2.5 6.766 2.5 5.25 2.5 2.31 4.863 0 8 0s5.5 2.31 5.5 5.25c0 1.516-.701 2.5-1.328 3.259-.095.115-.184.22-.268.319-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751 0 0 1-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848.075-.088.147-.173.213-.253.561-.679.985-1.32.985-2.304 0-2.06-1.637-3.75-4-3.75ZM5.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM6 15.25a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 0 1.5h-2.5a.75.75 0 0 1-.75-.75Z"></path></svg>Tip</span><br></p><p><span>该模式可以有效避开服务器流量高峰，同时节省能源开支。</span></p></div><div class="md-alert md-alert-warning warning"><p><span class='md-alert-text md-alert-text-warning'><svg viewBox="0 0 16 16" version="1.1" width="1em" height="1em" aria-hidden="true"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Warning</span><br></p><p><span>该模式在夜间处于完全“无人监管下运行”状态。如果你的计算机不稳定或你决定本模式存在问题（请上报Issue），请勿使用以免造成不良后果。</span></p></div><h3 id='开始爬取'><span>开始爬取</span></h3><p><span>以上设置均完成后，你可开始爬取。</span></p><div class="md-alert md-alert-note note"><p><span class='md-alert-text md-alert-text-note'><svg viewBox="0 0 16 16" version="1.1" width="1em" height="1em" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</span><br></p><p><strong><span>此过程可能需要较长时间</span></strong><span>，具体时间消耗依你计算机的网络和处理器性能，爬取量的大小，服务器流量等因素而定。</span></p></div><p><span>在爬取过程中，若你希望暂停或退出爬取，请按esc键。如果爬取中遇到错误，则爬取也将自动暂停。你可以选择重试，也可以退出爬取。</span></p><h2 id='提取和管理已经爬取的代码'><span>提取和管理已经爬取的代码</span></h2><p><span>本章节阐述了如何提取和管理已经爬取到本地的代码。</span></p><div class="md-alert md-alert-note note"><p><span class='md-alert-text md-alert-text-note'><svg viewBox="0 0 16 16" version="1.1" width="1em" height="1em" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</span><br></p><p><span>要执行本章节的操作，你必须具有一个合法的Cookie。你不能对其他luogu账户的代码/参数文件执行操作。</span></p></div><div class="md-alert md-alert-warning warning"><p><span class='md-alert-text md-alert-text-warning'><svg viewBox="0 0 16 16" version="1.1" width="1em" height="1em" aria-hidden="true"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Warning</span><br></p><p><span>请仔细阅读本章节说明，</span><strong><span>任何批量操作的错误都有可能导致需要重新爬取所有代码</span></strong><span>。请谨慎操作。</span></p></div><h3 id='提取已经爬取到本地的代码'><span>提取已经爬取到本地的代码</span></h3><p><span>转到“管理,提取本地代码-提取代码到指定文件夹”以提取代码。</span></p><p><span>Luogu Submitting Crawler会将你luogu账户中所有的已爬取代码拷贝到你指定的路径下的文件夹</span><code>code_uid</code><span>文件夹下（uid为你的_uid）。</span></p><div class="md-alert md-alert-caution caution"><p><span class='md-alert-text md-alert-text-caution'><svg viewBox="0 0 16 16" version="1.1" width="1em" height="1em" aria-hidden="true"><path d="M4.47.22A.749.749 0 0 1 5 0h6c.199 0 .389.079.53.22l4.25 4.25c.141.14.22.331.22.53v6a.749.749 0 0 1-.22.53l-4.25 4.25A.749.749 0 0 1 11 16H5a.749.749 0 0 1-.53-.22L.22 11.53A.749.749 0 0 1 0 11V5c0-.199.079-.389.22-.53Zm.84 1.28L1.5 5.31v5.38l3.81 3.81h5.38l3.81-3.81V5.31L10.69 1.5ZM8 4a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 8 4Zm0 8a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Caution</span><br></p><p><span>你指定的路径应该是</span><strong><span>绝对路径</span></strong><span>，且</span><strong><span>不应包含任何非ASCLL字符或不可显示的ASCLL字符</span></strong><span>，否则极易导致提取失败。</span></p></div><div class="md-alert md-alert-tip tip"><p><span class='md-alert-text md-alert-text-tip'><svg viewBox="0 0 16 16" version="1.1" width="1em" height="1em" aria-hidden="true"><path d="M8 1.5c-2.363 0-4 1.69-4 3.75 0 .984.424 1.625.984 2.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621 1.49a.75.75 0 0 1-1.484.211c-.04-.282-.163-.547-.37-.847a8.456 8.456 0 0 0-.542-.68c-.084-.1-.173-.205-.268-.32C3.201 7.75 2.5 6.766 2.5 5.25 2.5 2.31 4.863 0 8 0s5.5 2.31 5.5 5.25c0 1.516-.701 2.5-1.328 3.259-.095.115-.184.22-.268.319-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751 0 0 1-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848.075-.088.147-.173.213-.253.561-.679.985-1.32.985-2.304 0-2.06-1.637-3.75-4-3.75ZM5.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM6 15.25a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 0 1.5h-2.5a.75.75 0 0 1-.75-.75Z"></path></svg>Tip</span><br></p><p><span>我们建议在执行下文所提及的操作时，</span><strong><span>先提取出代码作为备份（并将你luogu账户的参数文件复制一份，注意不要做任何更改）</span></strong><span>再执行操作。当不慎出现错误时，你可以立即还原。这将有效避免重新爬取所有代码的需要。</span></p></div><h3 id='手动修改指定题目名称'><span>手动修改指定题目名称</span></h3><p><span>你可手动更改某一题的题目名称。然后，Luogu Submitting Crawler会依据该新名称为</span><strong><span>你luogu账户下</span></strong><span>的所有本题代码依据</span><strong><span>当前的文件名设置</span></strong><span>进行重命名。当题目的名称被更新或原题目名称中具有Windows路径不支持的字符时，该功能十分有用。</span></p><div class="md-alert md-alert-note note"><p><span class='md-alert-text md-alert-text-note'><svg viewBox="0 0 16 16" version="1.1" width="1em" height="1em" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</span><br></p><p><span>只有你luogu账户下有该题目的Accepted代码，你才可以修改这一题的文件名。</span></p></div><div class="md-alert md-alert-warning warning"><p><span class='md-alert-text md-alert-text-warning'><svg viewBox="0 0 16 16" version="1.1" width="1em" height="1em" aria-hidden="true"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Warning</span><br></p><p><span>虽然你修改某题的名称后，Luogu Submitting Crawler只会对你luogu账户下的指定题目进行重命名，但当其他luogu账户用户使用本计算机上的Luogu Submitting Crawler时，他们也会使用这一被修改的题目名称。文件名数据是所有luogu账户共享的。</span><strong><span>只要他们爬取了代码，或选择将他们的代码按照格式重命名，则这一被修改的题目名称也将体现在他们的代码文件名上</span></strong><span>。</span></p></div><div class="md-alert md-alert-caution caution"><p><span class='md-alert-text md-alert-text-caution'><svg viewBox="0 0 16 16" version="1.1" width="1em" height="1em" aria-hidden="true"><path d="M4.47.22A.749.749 0 0 1 5 0h6c.199 0 .389.079.53.22l4.25 4.25c.141.14.22.331.22.53v6a.749.749 0 0 1-.22.53l-4.25 4.25A.749.749 0 0 1 11 16H5a.749.749 0 0 1-.53-.22L.22 11.53A.749.749 0 0 1 0 11V5c0-.199.079-.389.22-.53Zm.84 1.28L1.5 5.31v5.38l3.81 3.81h5.38l3.81-3.81V5.31L10.69 1.5ZM8 4a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 8 4Zm0 8a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Caution</span><br></p><p><span>在手动修改题目名称时，你应该避免键入Windows路径不支持的字符，否则当该名称被作为文件名的一部分时将导致错误。并且这一错误可能影响其他luogu账户用户。</span></p></div><h3 id='将代码按当前设定的格式重命名'><span>将代码按当前设定的格式重命名</span></h3><p><span>代码爬取完成后，你可更改已爬取代码的文件名格式。代码的文件名格式以</span><strong><span>当前设定的文件名格式</span></strong><span>为准。</span></p><div class="md-alert md-alert-caution caution"><p><span class='md-alert-text md-alert-text-caution'><svg viewBox="0 0 16 16" version="1.1" width="1em" height="1em" aria-hidden="true"><path d="M4.47.22A.749.749 0 0 1 5 0h6c.199 0 .389.079.53.22l4.25 4.25c.141.14.22.331.22.53v6a.749.749 0 0 1-.22.53l-4.25 4.25A.749.749 0 0 1 11 16H5a.749.749 0 0 1-.53-.22L.22 11.53A.749.749 0 0 1 0 11V5c0-.199.079-.389.22-.53Zm.84 1.28L1.5 5.31v5.38l3.81 3.81h5.38l3.81-3.81V5.31L10.69 1.5ZM8 4a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 8 4Zm0 8a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Caution</span><br></p><p><span>如果之前开启过</span><strong><span>保存所有AC代码</span></strong><span>功能，则</span><strong><span>必须开启“运行号”</span></strong><span>一项。该值对于每个提交记录是唯一的，否则可能导致代码重名。</span></p></div><div class="md-alert md-alert-note note"><p><span class='md-alert-text md-alert-text-note'><svg viewBox="0 0 16 16" version="1.1" width="1em" height="1em" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</span><br></p><p><span>本操作可能需要较长时间，具体时间消耗取决于你计算机的性能和代码数量。</span></p></div><h3 id='删除爬取的代码和参数文件'><span>删除爬取的代码和参数文件</span></h3><p><span>如果你认为你的代码文件和参数文件遭到损坏或不匹配，已经无法继续使用，你可以选择删除它们。该操作不会删除题目名称文件。</span></p><div class="md-alert md-alert-caution caution"><p><span class='md-alert-text md-alert-text-caution'><svg viewBox="0 0 16 16" version="1.1" width="1em" height="1em" aria-hidden="true"><path d="M4.47.22A.749.749 0 0 1 5 0h6c.199 0 .389.079.53.22l4.25 4.25c.141.14.22.331.22.53v6a.749.749 0 0 1-.22.53l-4.25 4.25A.749.749 0 0 1 11 16H5a.749.749 0 0 1-.53-.22L.22 11.53A.749.749 0 0 1 0 11V5c0-.199.079-.389.22-.53Zm.84 1.28L1.5 5.31v5.38l3.81 3.81h5.38l3.81-3.81V5.31L10.69 1.5ZM8 4a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 8 4Zm0 8a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Caution</span><br></p><p><span>请注意该操作无法撤销。</span></p></div><h2 id='luogu-submitting-crawler的其他部分和功能'><span>Luogu Submitting Crawler的其他部分和功能</span></h2><div class="md-alert md-alert-important important"><p><span class='md-alert-text md-alert-text-important'><svg viewBox="0 0 16 16" version="1.1" width="1em" height="1em" aria-hidden="true"><path d="M0 1.75C0 .784.784 0 1.75 0h12.5C15.216 0 16 .784 16 1.75v9.5A1.75 1.75 0 0 1 14.25 13H8.06l-2.573 2.573A1.458 1.458 0 0 1 3 14.543V13H1.75A1.75 1.75 0 0 1 0 11.25Zm1.75-.25a.25.25 0 0 0-.25.25v9.5c0 .138.112.25.25.25h2a.75.75 0 0 1 .75.75v2.19l2.72-2.72a.749.749 0 0 1 .53-.22h6.5a.25.25 0 0 0 .25-.25v-9.5a.25.25 0 0 0-.25-.25Zm7 2.25v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 9a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>Important</span><br></p><p><span>本章节</span><em><span>（Luogu Submitting Crawler的其他部分和功能）</span></em><span>与下一章节</span><em><span>（遥测）</span></em><span>的内容是除流程使用Luogu Submitting Crawler以外的其他事项和功能，以及较为重要的遥测内容。若你希望了解有关遥测的隐私，实现或这些“其他功能”，请阅读此部分。</span></p></div><p><span>本章节阐述了Luogu Submitting Crawler的状态图标含义，更新检查和还原功能。</span></p><h3 id='更新检查'><span>更新检查</span></h3><p><span>在每次Luogu Submitting Crawler启动时，updateChecker均会检查一次最新版本。你可转到“关于”页面了解是否有更新的版本。如果更新检查失败，你可选择重新检查。</span></p><div class="md-alert md-alert-tip tip"><p><span class='md-alert-text md-alert-text-tip'><svg viewBox="0 0 16 16" version="1.1" width="1em" height="1em" aria-hidden="true"><path d="M8 1.5c-2.363 0-4 1.69-4 3.75 0 .984.424 1.625.984 2.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621 1.49a.75.75 0 0 1-1.484.211c-.04-.282-.163-.547-.37-.847a8.456 8.456 0 0 0-.542-.68c-.084-.1-.173-.205-.268-.32C3.201 7.75 2.5 6.766 2.5 5.25 2.5 2.31 4.863 0 8 0s5.5 2.31 5.5 5.25c0 1.516-.701 2.5-1.328 3.259-.095.115-.184.22-.268.319-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751 0 0 1-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848.075-.088.147-.173.213-.253.561-.679.985-1.32.985-2.304 0-2.06-1.637-3.75-4-3.75ZM5.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM6 15.25a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 0 1.5h-2.5a.75.75 0 0 1-.75-.75Z"></path></svg>Tip</span><br></p><p><span>保持使用最新版本的Luogu Submitting Crawler可使你能够享受最新的功能和错误修复。</span></p></div><h3 id='还原'><span>还原</span></h3><p><span>如果你认为Luogu Submitting Crawler的大多数配置文件均已被损坏而无法使用，你可进行还原。这将会</span><strong><span>删除Luogu Submitting Crawler及其附属组件生成的所有文件和目录</span></strong><span>（相当于恢复到安装初始状态）。你也可以选择只删除日志文件（</span><code>log.txt</code><span>和</span><code>logArchive.txt</code><span>）。</span></p><div class="md-alert md-alert-note note"><p><span class='md-alert-text md-alert-text-note'><svg viewBox="0 0 16 16" version="1.1" width="1em" height="1em" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</span><br></p><p><span>请注意对于日志文件（</span><code>log.txt</code><span>和</span><code>logArchive.txt</code><span>），Luogu Submitting Crawler会清除其内内容，但其本体仍将存在。</span></p></div><div class="md-alert md-alert-caution caution"><p><span class='md-alert-text md-alert-text-caution'><svg viewBox="0 0 16 16" version="1.1" width="1em" height="1em" aria-hidden="true"><path d="M4.47.22A.749.749 0 0 1 5 0h6c.199 0 .389.079.53.22l4.25 4.25c.141.14.22.331.22.53v6a.749.749 0 0 1-.22.53l-4.25 4.25A.749.749 0 0 1 11 16H5a.749.749 0 0 1-.53-.22L.22 11.53A.749.749 0 0 1 0 11V5c0-.199.079-.389.22-.53Zm.84 1.28L1.5 5.31v5.38l3.81 3.81h5.38l3.81-3.81V5.31L10.69 1.5ZM8 4a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 8 4Zm0 8a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Caution</span><br></p><p><span>请注意该操作无法撤销，且将影响</span><strong><span>所有使用过本Luogu Submitting Crawler的luogu账户</span></strong><span>。</span></p></div><h3 id='状态图标'><span>状态图标</span></h3><p><span>Luogu Submitting Crawler在顶部会显示最多三个图标，以告知你当前本软件的状态。你可在下表中了解它们的含义。</span></p><div class="md-alert md-alert-note note"><p><span class='md-alert-text md-alert-text-note'><svg viewBox="0 0 16 16" version="1.1" width="1em" height="1em" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</span><br></p><p><span>请注意在某些较旧的Windows上，状态图标可能无法正常显示。</span></p></div><figure class='table-figure'><table><thead><tr><th><span>所属</span></th><th><span>显示</span></th><th><span>含义</span></th></tr></thead><tbody><tr><td><span>Cookie管理</span></td><td><span>无显示</span></td><td><span>当前存在合法Cookie，所有功能已激活</span></td></tr><tr><td><span>Cookie管理</span></td><td><span>●</span></td><td><span>当前不存在合法Cookie，需要键入一组合法Cookie。大多数功能受限</span></td></tr><tr><td><span>更新检查</span></td><td><span>无显示</span></td><td><span>当前版本已为最新版本，或者软件启动后未进入过“关于”页面，未读取过版本数据</span></td></tr><tr><td><span>更新检查</span></td><td><span>▲</span></td><td><span>存在更新版本可供下载和使用</span></td></tr><tr><td><span>更新检查</span></td><td><span>×</span></td><td><span>更新检查失败</span></td></tr><tr><td><span>遥测</span></td><td><span>无显示</span></td><td><span>遥测模式为1级（阻止所有遥测）</span></td></tr><tr><td><span>遥测</span></td><td><span>⭧</span></td><td><span>遥测模式为2/3级（仅发送必需遥测数据/必需与可选遥测数据）</span></td></tr></tbody></table></figure><div class="md-alert md-alert-note note"><p><span class='md-alert-text md-alert-text-note'><svg viewBox="0 0 16 16" version="1.1" width="1em" height="1em" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</span><br></p><p><span>有关遥测的内容请参阅下一章节</span><em><span>（遥测）</span></em><span>的内容。</span></p></div><h2 id='遥测'><span>遥测</span></h2><p><span>本章节阐述了Luogu Submitting Crawler内建的遥测功能，及其涉及到的控制和隐私等问题。</span></p><div class="md-alert md-alert-note note"><p><span class='md-alert-text md-alert-text-note'><svg viewBox="0 0 16 16" version="1.1" width="1em" height="1em" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</span><br></p><p><span>在Luogu Submitting Crawler，遥测由附属组件telemetryAssist完成。本章节所提及的“遥测模块”等类似表述均指该组件。</span></p><p><span>此部分仅面向用户介绍有关遥测的内容。你可阅读</span><code>telemetryAssist.cpp</code><span>来了解遥测的实现方案。</span></p></div><h3 id='关于遥测及其隐私'><span>关于遥测及其隐私</span></h3><p><span>遥测的目的是让我们了解用户在使用过程中可能出现的错误并针对性地改进软件。我们尊重并保护你的隐私，因此我们确保在遥测时落实以下几点：</span></p><ul><li><p><u><span>不会遥测任何敏感或秘密数据（例如你的Cookie，用户名等）。</span></u></p></li><li><p><u><span>使用不与你和你的计算机关联的数据（即Telemetry ID，是由你计算机的smBIOS UUID和MachineGUID组合后求得的MD5码。MD5码是一种哈希算法，无法通过计算得知你计算机的这两个ID）来区分遥测数据的发送计算机。</span></u></p></li><li><p><u><span>减少遥测数据头的信息。遥测将仅发送你计算机的系统版本（例如：Windows 11 Pro 24H2）、Telemetry ID和地区信息（例如CN，zh-CN，2052）。</span></u></p></li><li><p><u><span>使用SMTP over SSL发送遥测数据。</span></u></p></li><li><p><u><span>不会向任何人共享收到的遥测数据。</span></u></p></li><li><p><u><span>遥测数据仅在中国大陆存储和使用。</span></u></p></li></ul><p><span>这些措施将有效保证遥测过程中的数据和隐私安全。</span></p><h3 id='设置和监控遥测'><span>设置和监控遥测</span></h3><p><span>在遥测仪表板，遥测控制和信息面板，你可以设置遥测和查看有关遥测的信息。我们将遥测模式分为三个等级，你可自行调整。等级如下表所示。</span></p><figure class='table-figure'><table><thead><tr><th><span>级别</span></th><th><span>模式</span></th><th><span>解释</span></th></tr></thead><tbody><tr><td><span>1</span></td><td><span>阻止所有遥测</span></td><td><span>禁止发送所有遥测数据</span></td></tr><tr><td><span>2</span></td><td><span>仅发送必需遥测数据</span></td><td><span>仅爬取出现错误时发送遥测数据</span></td></tr><tr><td><span>3</span></td><td><span>必需与可选遥测数据</span></td><td><span>无论爬取成功或失败，均发送遥测数据</span></td></tr></tbody></table></figure><p><span>遥测仪表板会动态更新目前遥测的状态，状态分为六种，如下表所示。</span></p><figure class='table-figure'><table><thead><tr><th><span>序号</span></th><th><span>状态名称</span></th><th><span>解释</span></th></tr></thead><tbody><tr><td><span>1</span></td><td><span>不可用</span></td><td><span>当前遥测模式处于1级</span></td></tr><tr><td><span>2</span></td><td><span>就绪</span></td><td><span>当前遥测模式处于2/3级，且目前遥测模块空闲</span></td></tr><tr><td><span>3</span></td><td><span>更新</span></td><td><span>遥测模块状态正在切换，本软件暂时无法读取</span></td></tr><tr><td><span>4</span></td><td><span>运行</span></td><td><span>遥测模块正在运行，包括收集数据、编码和计算、联网发送等</span></td></tr><tr><td><span>5</span></td><td><span>成功</span></td><td><span>遥测模块成功进行了一次遥测（几秒后会变为“就绪”）</span></td></tr><tr><td><span>6</span></td><td><span>失败</span></td><td><span>遥测模块在上一次遥测中失败（几秒后会变为“就绪”）</span></td></tr></tbody></table></figure><div class="md-alert md-alert-note note"><p><span class='md-alert-text md-alert-text-note'><svg viewBox="0 0 16 16" version="1.1" width="1em" height="1em" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg>Note</span><br></p><p><span>你可能看到遥测仪表板的界面正在闪烁。这是正常现象。因为屏幕正在不断地被刷新。</span></p></div><p><span>在遥测信息和控制面板中，你会看到当前设定的遥测模式，你的地区信息和Telemetry ID。你还会看到“上次遥测日期”及“上次遥测耗时”。这两个参数为上一次</span><strong><span>成功</span></strong><span>遥测任务的数据。而“上次遥测的文件”则显示上一次遥测任务计划遥测的文件，</span><strong><span>无论其是否成功</span></strong><span>。</span></p><hr /><p><strong><span>感谢你选择Luogu Submitting Crawler！希望本文档能帮助你更好地使用它。</span></strong></p><p><span>若发现本文档存在错误，请前往GitHub并上报为Issue。</span></p><p><span>文档更新日期：2025/7/23（Version 1）</span></p></div></div>
+</body>
+</html>

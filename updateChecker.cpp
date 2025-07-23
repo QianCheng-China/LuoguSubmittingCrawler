@@ -1,6 +1,6 @@
 /*
 This is an update check program for Luogu Submitting Crawler
-Update Checker Version: 1 Date: 2025/7/17
+Update Checker Version: 2 Date: 2025/7/22
 */
 #include<bits/stdc++.h>
 #include<windows.h>
@@ -17,6 +17,7 @@ void core(){
 	system("del update.txt > nul 2>nul");
 	system("del updateTmp.txt > nul 2>nul");
 	system("curl -s https://www.lanzouq.com/b00uz6rixg > updateTmp.txt");
+	system("echo ed >> updateTmp.txt");
 	system("echo [Html File End] >> updateTmp.txt");
 	ifstream fin;ofstream fout;
 	fin.open("updateTmp.txt",ios::in);
@@ -27,6 +28,7 @@ void core(){
 		for(int i=0;i<len;i++)
 			if(html[i]=='@'){while(html[++i]!='@')version+=html[i];break;}
 	}
+	fin.close();
 	if(version.empty())reac("Fail");
 	else reac(version);
 }
