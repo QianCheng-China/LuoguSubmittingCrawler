@@ -18,8 +18,8 @@
 #define chos _getch()-'0'
 
 using namespace std;
-const string _DATE="2025.7.22";
-const string _VERSION="2.0.1"; 
+const string _DATE="2025.12.31";
+const string _VERSION="2.0.2"; 
 const int MD5_BLOCK_SIZE=64,MD5_DIGEST_SIZE=16;
 
 string guid,uuid,pcName,acName,loCode,loNum,naCode,latestVer="loading";
@@ -219,7 +219,7 @@ string getProbName(string pidS,string cidS) {
 	}
 	for(int i=0;i<probName.length();i++){
 		char ch=probName[i];
-		if(ch=='\\'||ch=='/'||ch==':'||ch=='<'||ch=='>'||ch=='*'||ch=='|'||ch=='\"')return "Illegal_File_Name"; 
+		if(ch=='\\'||ch=='/'||ch==':'||ch=='<'||ch=='>'||ch=='*'||ch=='|'||ch=='\"'||ch=='?')return "Illegal_File_Name"; 
 	}
 	return utfCov(probName.c_str());
 }
@@ -839,7 +839,7 @@ void about(){
 		prt("Luogu Submitting Crawler.exe\n");
 		prt("软件版本:%s (%s)\n",_VERSION.c_str(),_DATE.c_str());
 		prt("使用Embarcadero Dev-C++ 6.3编写,TDM-GCC 9.2.0 64-bit Release编译\n");
-		prt("Copyright:2023-2025 Journals Junction Hybrid 保留所有权利\n");line;
+		prt("Copyright:2023-2025 Lithillmstro Dev 保留所有权利\n");line;
 		prt("根据GNU General Public License 3,授权相关用户在其计算机上使用此软件\n");
 		prt("用户: %s\n计算机: %s\n",acName.c_str(),pcName.c_str());line;
 		prt("https://github.com/QianCheng-China/LuoguSubmittingCrawler/releases\n");
